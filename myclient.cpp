@@ -9,17 +9,21 @@
 #include <cstdio>
 #include <cstring>
 
+#include "protocols.h"
+
 #define BUF 1024
 #define PORT 6543
 
 using namespace std;
 
 int main (int argc, char **argv) {
+//Create Socket
   int socket_fd;
   char buffer[BUF];
   struct sockaddr_in address;
   int size;
 
+  //Check Arguments
   if( argc < 2 )
     {
       printf("Usage: %s ServerAdresse\n", argv[0]);
@@ -52,14 +56,17 @@ int main (int argc, char **argv) {
       perror("Connect error - no server available");
       return EXIT_FAILURE;
     }
-
+//Communication with Server
   do
     {
-      printf ("Send message: ");
+      printf ("Send Request: ");
       fgets (buffer, BUF, stdin);
+      //evaluate User Protocoll and put data onto buffer.
+      //buffer = 
       send(socket_fd, buffer, strlen (buffer), 0);
     } 
   while (strcmp (buffer, "quit\n") != 0);
+
   close (socket_fd);
   return EXIT_SUCCESS;
 }

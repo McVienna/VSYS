@@ -9,12 +9,16 @@
 #include <cstdio>
 #include <cstring>
 
+#include "protocols.h"
+#include "s_filehandler.h"
+
 #define BUF 1024
 #define PORT 6543
 
 using namespace std;
 
 int main (void) {
+//Create Socket
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
@@ -37,16 +41,18 @@ int main (void) {
   
   addrlen = sizeof (struct sockaddr_in);
 
+//Main Program, runs until killed.
   while (1)
-    {
+    { //Wait for Connection
       printf("Waiting for connections...\n");
-      client_socket_fd = accept ( server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen );
+      client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen ;
       if (client_socket_fd > 0)
         {
           printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr),ntohs(cliaddress.sin_port));
-          strcpy(buffer,"Welcome to myserver, Please enter your command:\n");
+          strcpy(buffer,"Welcome to TWMailer, Please enter your command:\n");
           send(client_socket_fd, buffer, strlen(buffer),0);
         }
+      //Communication with Client
       do
         {
           size = recv (client_socket_fd, buffer, BUF-1, 0);
