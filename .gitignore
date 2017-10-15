@@ -1,4 +1,8 @@
 .vscode/
+.idea/
+cmake-build-debug/
 *.out
 *.o
 .directory
+startClient
+startServer
