@@ -13,7 +13,7 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6543
+#define PORT 6544
 
 using namespace std;
 
@@ -22,9 +22,11 @@ int main (void) {
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
+  char message[BUF];
   int size;
   struct sockaddr_in address, cliaddress;
-
+  memset (&buffer, 0, sizeof(buffer));
+  memset (&message, 0, sizeof(message));
   server_socket_fd = socket (AF_INET, SOCK_STREAM, 0);
 
   memset(&address, 0, sizeof(address));
