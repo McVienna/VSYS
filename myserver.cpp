@@ -26,10 +26,12 @@ int main (int argc, char **argv) {
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
+  char message[BUF];
   int size;
     std::string test_path;
   struct sockaddr_in address, cliaddress;
-
+  memset (&buffer, 0, sizeof(buffer));
+  memset (&message, 0, sizeof(message));
   server_socket_fd = socket (AF_INET, SOCK_STREAM, 0);
 
   memset(&address, 0, sizeof(address));

@@ -1,4 +1,4 @@
-/* myclient.c */
+/* myclient.c, adapted to c++ */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,9 +10,10 @@
 #include <cstring>
 
 #include "protocols.h"
+#include "socketutility.h"
 
 #define BUF 1024
-#define PORT 6543
+#define PORT 6544
 
 using namespace std;
 
@@ -22,6 +23,9 @@ int main (int argc, char **argv) {
   char buffer[BUF];
   struct sockaddr_in address;
   int size;
+  unsigned int transmission_length;
+
+
 
   //Check Arguments
   if( argc < 2 )
@@ -62,8 +66,13 @@ int main (int argc, char **argv) {
       printf ("Send Request: ");
       fgets (buffer, BUF, stdin);
       //evaluate User Protocoll and put data onto buffer.
-      //buffer = 
-      send(socket_fd, buffer, strlen (buffer), 0);
+      transmission_length = (unsigned int) strlen (buffer);
+      if(sendall(socket_fd, buffer, transmission_length) == -1)
+        {
+          perror("sendall");
+          printf("We only sent %d bytes because of the error!\n", transmission_length);
+        }
+
     } 
   while (strcmp (buffer, "quit\n") != 0);
 
