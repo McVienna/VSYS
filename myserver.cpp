@@ -4,25 +4,30 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <boost/filesystem.hpp>
 
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
 
 #include "protocols.h"
 #include "s_filehandler.h"
 
 #define BUF 1024
 #define PORT 6543
+///Port hardcoded for comfort of testing ^^
 
 using namespace std;
 
-int main (void) {
+int main (int argc, char **argv) {
 //Create Socket
+
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
   int size;
+    std::string test_path;
   struct sockaddr_in address, cliaddress;
 
   server_socket_fd = socket (AF_INET, SOCK_STREAM, 0);
@@ -44,6 +49,11 @@ int main (void) {
 //Main Program, runs until killed.
   while (1)
     { //Wait for Connection
+
+      std::cout << "Please enter Path to Mailpooldirectory: "  << std::endl;
+        std::cin >> test_path;
+        new filehandler(test_path);
+
       printf("Waiting for connections...\n");
       client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen) ;
       if (client_socket_fd > 0)
