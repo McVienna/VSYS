@@ -45,7 +45,7 @@ int main (void) {
   while (1)
     { //Wait for Connection
       printf("Waiting for connections...\n");
-      client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen ;
+      client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen) ;
       if (client_socket_fd > 0)
         {
           printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr),ntohs(cliaddress.sin_port));
