@@ -9,7 +9,7 @@ private:
 public:
     filehandler(std::string);
     ~filehandler();
-    void create_sub_usr(std::string, std::string);
+    void create_usr_dir(std::string, std::string);
 
 };
 
