@@ -13,7 +13,7 @@
 #include "socketutility.h"
 
 #define BUF 1024
-#define PORT 6544
+#define PORT 6543
 
 using namespace std;
 

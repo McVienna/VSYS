@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
 
 #include <cstdlib>
 #include <cstdio>
@@ -22,12 +21,14 @@ using namespace std;
 
 int main (int argc, char **argv) {
 
+  std::cout << "entering main" << std::endl;
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
   char message[BUF];
   int size;
-    std::string test_path;
+  std::string _path;
+  filehandler * general_filehandler = NULL;
 
   //Create Socket
   struct sockaddr_in address, cliaddress;
@@ -40,6 +41,7 @@ int main (int argc, char **argv) {
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons (PORT);
 
+  std::cout << "try to bind" << std::endl;
   if (bind ( server_socket_fd, (struct sockaddr *) &address, sizeof (address)) != 0)
     {
       perror("bind error");
@@ -50,44 +52,50 @@ int main (int argc, char **argv) {
   addrlen = sizeof (struct sockaddr_in);
 
 //Main Program, runs until killed.
-  while (1)
-    { //Wait for Connection
+  if(argc == 2) {
 
-      std::cout << "Please enter Path to Mailpooldirectory: "  << std::endl;
-        std::cin >> test_path;
-        new filehandler(test_path);
+    std::cout << "argument entered" << std::endl;
+    _path = argv[1];
 
+    general_filehandler = new filehandler(_path);
+
+    while (1) { //Wait for Connection
       printf("Waiting for connections...\n");
-      client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen) ;
-      if (client_socket_fd > 0)
-        {
-          printf ("Client connected from %s:%d...\n", inet_ntoa (cliaddress.sin_addr),ntohs(cliaddress.sin_port));
-          strcpy(buffer,"Welcome to TWMailer, Please enter your command:\n");
-          send(client_socket_fd, buffer, strlen(buffer),0);
-        }
+      client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
+
+      if (client_socket_fd > 0) {
+        printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
+        strcpy(buffer, "Welcome to TWMailer, Please enter your command:\n");
+        send(client_socket_fd, buffer, strlen(buffer), 0);
+      }
       //Communication with Client
-      do
-        {
-          size = recv (client_socket_fd, buffer, BUF-1, 0);
-          if( size > 0)
-            {
-              buffer[size] = '\0';
-              printf ("Message received: %s\n", buffer);
-            }
-          else if (size == 0)
-            {
-              printf("Client closed remote socket\n");
-              break;
-            }
-          else
-            {
-              perror("recv error");
-              return EXIT_FAILURE;
-            }
+      do {
+        size = recv(client_socket_fd, buffer, BUF - 1, 0);
+        if (size > 0) {
+          buffer[size] = '\0';
+          printf("Message received: %s\n", buffer);
+        } else if (size == 0) {
+          printf("Client closed remote socket\n");
+          break;
+        } else {
+          perror("recv error");
+          return EXIT_FAILURE;
         }
-      while (strncmp (buffer, "quit", 4)  != 0);
-      close (client_socket_fd);
+      } while (strncmp(buffer, "quit", 4) != 0);
+      close(client_socket_fd);
     }
-  close (server_socket_fd);
-  return EXIT_SUCCESS;
+    close(server_socket_fd);
+    return EXIT_SUCCESS;
+  }
+  else if(argc < 2)
+  {
+    perror("Usage: ./MyServer <Mailpoolpath> <Port>");
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    return EXIT_FAILURE;
+
+  };
 }
+

@@ -1,19 +1,23 @@
 #include <iostream>
 #include "s_filehandler.h"
-#include <boost/filesystem.hpp>
+#include <experimental/filesystem>
+
+namespace fs = std::experimental::filesystem::v1;
 
 
 filehandler::filehandler(std::string m_path){
+
     this->path = m_path;
 
-    if(!(boost::filesystem::is_directory(m_path)))
+    if(!(fs::is_directory(this->path)))
     {
-        boost::filesystem::create_directories(path);
+        fs::create_directories(this->path);
     }
     else
     {
 
     }
+
 }
 
 filehandler::~filehandler(){
