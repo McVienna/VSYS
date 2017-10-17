@@ -4,11 +4,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
 
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <experimental/filesystem>
 
 
 #include "protocols.h"
@@ -52,10 +52,6 @@ int main (int argc, char **argv) {
 //Main Program, runs until killed.
   while (1)
     { //Wait for Connection
-
-      std::cout << "Please enter Path to Mailpooldirectory: "  << std::endl;
-        std::cin >> test_path;
-        new filehandler(test_path);
 
       printf("Waiting for connections...\n");
       client_socket_fd = accept (server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen) ;
