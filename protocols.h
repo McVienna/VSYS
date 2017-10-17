@@ -3,6 +3,9 @@
 
 #include <iostream>
 
+
+/************************UTILITY FUNCTIONS************************/
+
 /*
 returns int depending on Protocol of 'serialized_data'
 -1: error
@@ -11,19 +14,33 @@ returns int depending on Protocol of 'serialized_data'
  2: Read_prot
  3: Delete_prot
 */
-int get_protocol(char* serialized_data); 
+int get_protocol(char* recieved_data); 
 
+//sets a string with limit being max amount of letters.
+void set_with_limit(std::string name, std::string &toSet, unsigned int limit);
+
+//function to read Message typed by user into string.
+void typeMessage(std::string &message);
+
+
+
+
+
+
+
+/************************PROTOCOLS************************/
 
 //Protocol for sending a new email
 class Send_prot{
   public:
     Send_prot();
-    Send_prot(char* serialized_data); //used to build Object after recieving Data
+    Send_prot(char* recieved_data); //used to build Object after recieving Data
     ~Send_prot();
 
-  private:
-    void set_data(); //called when constructing the element
     char* serialize(); //returns c_string ready to send.
+    int get_buffersize(); //returns size needed for buffer to contain all data.
+
+  private:
 
     char* serialized_data;
     std::string sender;
@@ -36,10 +53,9 @@ class Send_prot{
 class List_prot{
   public:
     List_prot();
-    List_prot(char* serialized_data); //used to build Object after recieving Data
+    List_prot(char* recieved_data); //used to build Object after recieving Data
     ~List_prot();
   private:
-    void set_data(); //called when constructing the element
     char* serialize(); //returns c_string ready to send.
 
     std::string username;
@@ -50,11 +66,10 @@ class List_prot{
 class Read_prot{
   public:
     Read_prot();
-    Read_prot(char* serialized_data); //used to build Object after recieving Data
+    Read_prot(char* recieved_data); //used to build Object after recieving Data
     ~Read_prot();
 
   private:
-    void set_data(); //called when constructing the element
     char* serialize(); //returns c_string ready to send.
 
     std::string username;
@@ -66,11 +81,10 @@ class Read_prot{
 class Delete_prot {
   public:
     Delete_prot();
-    Delete_prot(char* serialized_data); //used to build Object after recieving Data
+    Delete_prot(char* recieved_data); //used to build Object after recieving Data
     ~Delete_prot();
 
   private:
-    void set_data(); //called when constructing the element
     char* serialize(); //returns c_string ready to send.
 
     std::string username;

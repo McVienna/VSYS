@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <experimental/filesystem>
 
 
 #include "protocols.h"
@@ -53,13 +54,13 @@ int main (int argc, char **argv) {
 
 //Main Program, runs until killed.
   if(argc == 2) {
-
     std::cout << "argument entered" << std::endl;
     _path = argv[1];
 
     general_filehandler = new filehandler(_path);
 
     while (1) { //Wait for Connection
+
       printf("Waiting for connections...\n");
       client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
 

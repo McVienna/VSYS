@@ -7,3 +7,5 @@ cmake-build-debug/
 .directory
 startClient
 startServer
+Makefile
+RUN.sh
