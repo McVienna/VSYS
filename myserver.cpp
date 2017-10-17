@@ -21,7 +21,6 @@
 using namespace std;
 
 int main (int argc, char **argv) {
-//Create Socket
 
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
@@ -29,6 +28,8 @@ int main (int argc, char **argv) {
   char message[BUF];
   int size;
     std::string test_path;
+
+  //Create Socket
   struct sockaddr_in address, cliaddress;
   memset (&buffer, 0, sizeof(buffer));
   memset (&message, 0, sizeof(message));

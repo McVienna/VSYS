@@ -25,10 +25,11 @@ class Send_prot{
     void set_data(); //called when constructing the element
     char* serialize(); //returns c_string ready to send.
 
+    char* serialized_data;
     std::string sender;
     std::string reciever;
     std::string subject;
-    std::string messege;
+    std::string message;
 };
 
 //Protocol for listing all messages of a user stored on the server.

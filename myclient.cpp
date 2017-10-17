@@ -40,7 +40,7 @@ int main (int argc, char **argv) {
       return EXIT_FAILURE;
     }
   
-  memset(&address,0,sizeof(address));
+  memset(&address, 0, sizeof(address));
   address.sin_family = AF_INET;
   address.sin_port = htons (PORT);
   inet_aton (argv[1], &address.sin_addr);
