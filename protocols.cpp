@@ -63,7 +63,12 @@ void typeMessage(std::string &message) {
         message.append(buffer);
         message.push_back('\n');
     }
-    message.erase((message.back()-2), message.back());
+    cout << message << endl;
+    for(int i = 0; i < 3; i++)
+      {
+        message.pop_back();
+      }
+    cout << message << endl;
 }
 
 
@@ -99,6 +104,7 @@ Send_prot::Send_prot(char* received_data) {
     short length = received_data[0] << 8 | received_data[1];
 
     length = ntohs(length);
+    cout << length <<endl;
 
     std::string _temp = "";
 
@@ -110,11 +116,22 @@ Send_prot::Send_prot(char* received_data) {
     {
         _temp[i-2] = received_data[i];
     }
+    
+    cout << "TEST" << endl;
+    this->sender = _temp.substr(3, 10);
+      cout << "Sender:" << this->sender << endl;
+    this->reciever = _temp.substr(11, 18);
+      cout << "Reciever:" << this->reciever << endl;
+    this->subject = _temp.substr(19, 98);
+      cout << "Subject:" << this->subject << endl;
+    this->message = _temp.substr(99, length);
+      cout << "Message:" << endl << this->message << endl;
 
-    this->sender = _temp.substr(0, 8);
-    this->reciever = _temp.substr(9, 17);
-    this->subject = _temp.substr(18, 98);
-    this->message = _temp.substr(98, length-3);
+    
+    
+    
+    
+
 }
 
 Send_prot::~Send_prot() {
@@ -125,7 +142,7 @@ Send_prot::~Send_prot() {
 
 //returns size needed for buffer to contain all data.
 int Send_prot::get_buffersize(){
-  return (2+1+8+8+80+this->message.size()+1);
+  return (2+1+8+8+80+this->message.size());
 }
 
 //given all members of the Object are set, serialize all Data fot the networktransfer in a char* buffer array;

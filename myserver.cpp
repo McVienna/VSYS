@@ -15,7 +15,7 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6544
+#define PORT 6547
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
@@ -25,12 +25,12 @@ using namespace std;
 int main(int argc, char **argv) {
 
     std::vector<char> m_buffer;
+    char* buffer = new char[BUF];
     int server_socket_fd, client_socket_fd;
     socklen_t addrlen;
     std::string message;
     int size;
     std::string user_path = "";
-    unsigned int transmission_length;
     std::string _path;
     filehandler *general_filehandler = NULL;
     Send_prot *instanciate_massage = NULL;
@@ -71,22 +71,28 @@ int main(int argc, char **argv) {
                 printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
                 message = "Welcome to TWMailer, Please enter your command:\n";
                 std::copy(message.begin(), message.end(), std::back_inserter(m_buffer));
-
-                char * temp_buffer = new char[m_buffer.size()];
-                vec_to_buf(m_buffer, temp_buffer);
-
-                send(client_socket_fd, temp_buffer, strlen(temp_buffer), 0);
+                
+                char * temp_buffer = buffer;
+                buffer = new char[m_buffer.size()];
                 delete temp_buffer;
+                vec_to_buf(m_buffer, buffer);
+
+                send(client_socket_fd, buffer, strlen(buffer), 0);
 
             }
             //Communication with Client
             do {
                 size = recvall(client_socket_fd, m_buffer);
                 if (size > 0) {
-                    
 
-                    instanciate_massage = new Send_prot(m_buffer);
+                    char *temp = buffer;
+                    buffer     = new char[m_buffer.size()];
+                    delete temp;
+                    vec_to_buf(m_buffer, buffer);
 
+                    cout << "TEST" << endl;
+
+                    instanciate_massage = new Send_prot(buffer);
                     ///checks whether directory for user already exists or not! if(not) create directory for user;
                     if(!(fs::is_directory(general_filehandler->return_path() + "/" + instanciate_massage->return_sender())))
                     {
@@ -105,7 +111,7 @@ int main(int argc, char **argv) {
                     perror("recv error");
                     return EXIT_FAILURE;
                 }
-            } while (strncmp(temp_buffer, "quit", 4) != 0);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later
+            } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later
             close(client_socket_fd);
         }
         close(server_socket_fd);

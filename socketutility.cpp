@@ -9,8 +9,11 @@
 #include <cstring>
 
 #include <vector>
+#include <iostream>
 
 #include "socketutility.h"
+
+using namespace std;
 
 void vec_to_buf(std::vector<char> &m_buffer, char * temp_buffer)
 {
@@ -20,15 +23,25 @@ void vec_to_buf(std::vector<char> &m_buffer, char * temp_buffer)
     }
 }
 
-int sendall(int socketfd, char* buf, unsigned int &len)
+int sendall(int socketfd, char* buffer, unsigned int &len)
 {
   unsigned int total = 0;
   int bytesleft = len;  // how many we have left to send
   int n;
 
+  /*DEBUG: TEST PRINTING OF ARRAY
+  cout << ntohs(buffer[0] << 8 | buffer[1]) << endl;
+  cout << ((int) (buffer[2] - '0')) << endl;
+
+  for(unsigned int i = 3; i < len; i++)
+  {
+      cout << buffer[i] << endl;
+  }
+  */
+
   while(total < len)
     {
-      n = send(socketfd, buf+total, bytesleft, 0);
+      n = send(socketfd, buffer+total, bytesleft, 0);
       if (n == -1)
         {
           break;
@@ -49,16 +62,17 @@ int sendall(int socketfd, char* buf, unsigned int &len)
 >0  size of data recieved.
 
 */
-int recvall(int socketfd, char* &buffer)
+int recvall(int socketfd, std::vector<char> &storage_buffer)
 {
   unsigned int total = 0;         // how many bytes we’ve recieved
   int size = 0;
   unsigned short packagesize = 0;
+  char* buffer = new char[4];
 
   //first recieve
-  while(size < 2)
+  while(total < 2)
     {
-      size = recv(socketfd, buffer+total, 4, 0);
+      size = recv(socketfd, buffer+total, 2-total, 0);
       if (size > 0)
         {
           total += size;
@@ -74,15 +88,17 @@ int recvall(int socketfd, char* &buffer)
         }
     }
   
-    //get length of incoming package
-    packagesize = buffer[0] << 8 | buffer[1];
-    packagesize = ntohs(packagesize);
+  //get length of incoming package
+  packagesize = buffer[0] << 8 | buffer[1];
+  packagesize = ntohs(packagesize);
 
-    //resize buffer
-    char *temp = buffer;
-    buffer     = new char[packagesize];
-    strcpy(buffer, temp);
-    delete temp;
+  //DEBUG cout << "packagesize: " << packagesize << endl;
+
+  //resize buffer
+  char *temp = buffer;
+  buffer     = new char[packagesize];
+  strcpy(buffer, temp);
+  delete temp;
     
 
   while(total < packagesize)
@@ -102,7 +118,17 @@ int recvall(int socketfd, char* &buffer)
           return -1;
         }
     }
-  return size == -1 ? -1 : 0; // return -1 on failure, 0 on success
+    /*DEBUG
+    cout << ntohs(buffer[0] << 8 | buffer[1]) << endl;
+    cout << ((buffer[2] - '0')) << endl;
+    
+    for(unsigned int i = 3; i < packagesize; i++)
+      {
+        cout << buffer[i] << endl;
+      }
+    */
+  vec_to_buf(storage_buffer, buffer);
+  return size; // return -1 on failure, 0 on success
 }
 
 
