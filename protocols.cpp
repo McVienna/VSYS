@@ -105,32 +105,23 @@ Send_prot::Send_prot(char* received_data) {
 
     length = ntohs(length);
 
-    std::string _temp = "";
+    std::string _temp;
 
     this->serialized_data = new char[length];
 
-    this->serialized_data = received_data;
+    strcpy(this->serialized_data, received_data);
 
     for(int i = 3; i < length; i++)
       {
-          _temp[i-2] = received_data[i];
+        _temp.resize (length);
+        _temp[i-3] = received_data[i];
       }
 
-    std::
-
-    cout << length << endl;
-
-    for(int i = 0; i < length-2; i++)
-      {
-        cout << _temp[i] << endl;
-      }
-    
-    cout << "TEST" << endl;
-    this->sender = _temp.substr(0, 8);
+   this->sender = _temp.substr(0, 8);
       cout << "Sender:" << this->sender << endl;
-    this->reciever = _temp.substr(8, 8);
+   this->reciever = _temp.substr(7, 8);
       cout << "Reciever:" << this->reciever << endl;
-    this->subject = _temp.substr(16, 80);
+  this->subject = _temp.substr(15, 80);
       cout << "Subject:" << this->subject << endl;
     this->message = _temp.substr(96, length - (80+8+8+2+1));
       cout << "Message:" << endl << this->message << endl;
