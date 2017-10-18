@@ -32,25 +32,52 @@ int sendall(int socketfd, char* buf, unsigned int &len)
  
 }
 
+
+/* recieve all Data from socket.
+-1 error
+-0  client closed connection
+>0  size of data recieved.
+
+*/
 int recvall(int socketfd, char* buf, unsigned int &len)
 {
   unsigned int total = 0;         // how many bytes we’ve recieved
   int bytesleft = len;  // how many we have left to recieve
-  int n;
+  int size = 0;
 
+  //first recieve
+  while(size < 2)
+    {
+      size = recv(socketfd, buf+total, len, 0);
+      if (size > 0)
+        {
+          total += size;
+          bytesleft -=size;
+        }
+      else if (size == 0)
+        {
+          return 0;
+        }
+      else
+        {
+          perror("recv error");
+          return EXIT_FAILURE;
+        }
+    }
+  
   while(total < len)
     {
-      n = recv(socketfd, buf+total, bytesleft, 0);
-      if (n == -1)
+      size = recv(socketfd, buf+total, bytesleft, 0);
+      if (size == -1)
         {
           break;
         }
-      total += n;
-      bytesleft -= n;
+      total += size;
+      bytesleft -= size;
     }
 
   len = total;      // return number actually sent here
-  return n==-1?-1:0; // return -1 on failure, 0 on success
+  return size ==-1 ? -1 : 0; // return -1 on failure, 0 on success
 }
 
 

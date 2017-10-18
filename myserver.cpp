@@ -10,7 +10,7 @@
 #include <cstring>
 #include <experimental/filesystem>
 
-
+#include "socketutility.h"
 #include "protocols.h"
 #include "s_filehandler.h"
 
@@ -25,12 +25,20 @@ int main (int argc, char **argv) {
 
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
-  char* buffer = ((char*) malloc(BUF*sizeof(char)));;
+  char* buffer = ((char*) malloc(BUF*sizeof(char)));
   char message[BUF];
   int size;
   std::string _path;
   filehandler * general_filehandler = NULL;
   Send_prot * instanciate_massage = NULL;
+
+  //check buffer-allocation
+    if (buffer == NULL)
+    {
+      // error handling 
+      printf("Allocation of memory has failed. Probably not your fault :(");
+      exit(-1);
+    }
 
   //Create Socket
   struct sockaddr_in address, cliaddress;
@@ -72,7 +80,7 @@ int main (int argc, char **argv) {
       }
       //Communication with Client
       do {
-        size = recv(client_socket_fd, buffer, BUF - 1, 0);
+        size = recvall(client_socket_fd, buffer, BUF - 1, 0);
         if (size > 0) {
           buffer[size] = '\0';
           printf("Message received: %s\n", buffer);
