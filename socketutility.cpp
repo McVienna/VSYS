@@ -127,7 +127,11 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
         cout << buffer[i] << endl;
       }
     */
-  vec_to_buf(storage_buffer, buffer);
+  storage_buffer.resize(packagesize);
+  for(unsigned int i = 0; i < packagesize; i++)
+  {
+      storage_buffer[i] = buffer[i];
+  }
   return size; // return -1 on failure, 0 on success
 }
 

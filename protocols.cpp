@@ -104,7 +104,6 @@ Send_prot::Send_prot(char* received_data) {
     short length = received_data[0] << 8 | received_data[1];
 
     length = ntohs(length);
-    cout << length <<endl;
 
     std::string _temp = "";
 
@@ -113,9 +112,17 @@ Send_prot::Send_prot(char* received_data) {
     this->serialized_data = received_data;
 
     for(int i = 2; i < length; i++)
-    {
-        _temp[i-2] = received_data[i];
-    }
+      {
+          _temp[i-2] = received_data[i];
+      }
+
+
+    cout << length << endl;
+    cout << (int) _temp[2] - '0' << endl;
+    for(int i = 0; i < length-3; i++)
+      {
+        cout << _temp[i] << endl;
+      }
     
     cout << "TEST" << endl;
     this->sender = _temp.substr(3, 10);

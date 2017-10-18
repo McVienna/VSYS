@@ -15,7 +15,7 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6547
+#define PORT 6548
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
@@ -78,10 +78,12 @@ int main(int argc, char **argv) {
                 vec_to_buf(m_buffer, buffer);
 
                 send(client_socket_fd, buffer, strlen(buffer), 0);
+                m_buffer.clear();
 
             }
             //Communication with Client
             do {
+                m_buffer.clear();
                 size = recvall(client_socket_fd, m_buffer);
                 if (size > 0) {
 
@@ -89,8 +91,6 @@ int main(int argc, char **argv) {
                     buffer     = new char[m_buffer.size()];
                     delete temp;
                     vec_to_buf(m_buffer, buffer);
-
-                    cout << "TEST" << endl;
 
                     instanciate_massage = new Send_prot(buffer);
                     ///checks whether directory for user already exists or not! if(not) create directory for user;
