@@ -28,4 +28,8 @@ void filehandler::create_usr_dir(std::string usr, std::string path) {
     ///should create subdirectory if message recieved -> sub_dir name = username
 }
 
+std::string filehandler::return_path()
+{
+    return this->path;
+}
 

@@ -39,10 +39,11 @@ class Send_prot{
 
     char* serialize(); //returns c_string ready to send.
     int get_buffersize(); //returns size needed for buffer to contain all data.
+    std::string return_sender();
 
   private:
 
-    char* serialized_data;
+    char * serialized_data;
     std::string sender;
     std::string reciever;
     std::string subject;

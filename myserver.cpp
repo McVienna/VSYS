@@ -18,6 +18,8 @@
 #define PORT 6544
 ///Port hardcoded for comfort of testing ^^
 
+namespace fs = std::experimental::filesystem::v1;
+
 using namespace std;
 
 int main(int argc, char **argv) {
@@ -27,6 +29,7 @@ int main(int argc, char **argv) {
     socklen_t addrlen;
     std::string message;
     int size;
+    std::string user_path = "";
     unsigned int transmission_length;
     std::string _path;
     filehandler *general_filehandler = NULL;
@@ -78,12 +81,22 @@ int main(int argc, char **argv) {
             }
             //Communication with Client
             do {
-                //transmission_length = (unsigned int) sizeof(temp_buffer);
                 size = recvall(client_socket_fd, m_buffer);
                 if (size > 0) {
-                    char * temp_buffer = new char[m_buffer.size()];
+                    
 
                     instanciate_massage = new Send_prot(m_buffer);
+
+                    ///checks whether directory for user already exists or not! if(not) create directory for user;
+                    if(!(fs::is_directory(general_filehandler->return_path() + "/" + instanciate_massage->return_sender())))
+                    {
+                        fs::create_directories(general_filehandler->return_path() + "/" + instanciate_massage->return_sender());
+                        user_path = general_filehandler->return_path() + "/" + instanciate_massage->return_sender();
+                    }
+                    else
+                    {
+                        user_path = general_filehandler->return_path() + "/" + instanciate_massage->return_sender();
+                    }
 
                 } else if (size == 0) {
                     printf("Client closed remote socket\n");
@@ -92,7 +105,7 @@ int main(int argc, char **argv) {
                     perror("recv error");
                     return EXIT_FAILURE;
                 }
-            } while (strncmp(temp_buffer, "quit", 4) != 0);
+            } while (strncmp(temp_buffer, "quit", 4) != 0);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later
             close(client_socket_fd);
         }
         close(server_socket_fd);
@@ -102,6 +115,5 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     } else {
         return EXIT_FAILURE;
-
-    };
+    }
 }
