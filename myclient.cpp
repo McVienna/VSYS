@@ -13,7 +13,7 @@
 #include "socketutility.h"
 
 #define BUF 1024
-#define PORT 6543
+#define PORT 6544
 
 using namespace std;
 
@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
         Send_prot protocol;
 
         //Check Buffer size, realloc, if neccassary.
-        if (strlen(buffer) < (unsigned int) protocol.get_buffersize())
+        if (sizeof(buffer) < (unsigned int) protocol.get_buffersize())
           {
             char* tmp_a = (char*) realloc(buffer, protocol.get_buffersize()*sizeof(char));
             if ( tmp_a == NULL ) // realloc has failed
@@ -97,7 +97,7 @@ int main (int argc, char **argv) {
           }
         
         buffer = protocol.serialize();
-        transmission_length = (unsigned int) strlen (buffer);
+        transmission_length = (unsigned int) sizeof(buffer);
         if(sendall(socket_fd, buffer, transmission_length) == -1)
           {
             perror("sendall");
