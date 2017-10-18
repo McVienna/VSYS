@@ -19,51 +19,51 @@ returns int depending on Protocol of 'serialized_data'
  3: Delete_prot
 */
 int get_protocol(char* recieved_data){
-  //check if recieved_data contains valid values.
-  if(recieved_data[2] == '\0')
+    //check if recieved_data contains valid values.
+    if(recieved_data[2] == '\0')
     {
-      return -1;
+        return -1;
     }
 
-  return ((int) (recieved_data[2] - '0'));
+    return ((int) (recieved_data[2] - '0'));
 }
 
 //sets a string with limit being max amount of letters.
-void set_with_limit(std::string name, std::string &toSet, unsigned int limit) { 
-  int loop = 0;
+void set_with_limit(std::string name, std::string &toSet, unsigned int limit) {
+    int loop = 0;
 
-  do
+    do
     {
-      if(loop > 0)
+        if(loop > 0)
         {
-          cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
+            cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
         }
-      cout << name << "(" << limit << "): ";
-      cin  >> toSet;
+        cout << name << "(" << limit << "): ";
+        cin  >> toSet;
 
-      loop++;
+        loop++;
     }
-  while(toSet.size() < 1 || toSet.size() > limit);
+    while(toSet.size() < 1 || toSet.size() > limit);
 }
 
 //function to read Message typed by user into string.
 void typeMessage(std::string &message) {
-  std::string buffer = "";
+    std::string buffer = "";
 
-  cout << endl
-       << "MESSAGE TYPER" << endl
-       << "To end message typing, enter an line containing a single dot." << endl
-       << "Essentialy, hit the following keys in succesion: 'Enter' '.' 'Enter'" << endl << endl
-       << "Enter message:" << endl;
+    cout << endl
+         << "MESSAGE TYPER" << endl
+         << "To end message typing, enter an line containing a single dot." << endl
+         << "Essentialy, hit the following keys in succesion: 'Enter' '.' 'Enter'" << endl << endl
+         << "Enter message:" << endl;
 
-  while(buffer != ".")
-  {
-    buffer = "";
-    cin >> buffer;
-    message.append(buffer);
-    message.push_back('\n');
-  }
-  message.erase((message.back()-2), message.back());
+    while(buffer != ".")
+    {
+        buffer = "";
+        cin >> buffer;
+        message.append(buffer);
+        message.push_back('\n');
+    }
+    message.erase((message.back()-2), message.back());
 }
 
 
@@ -78,58 +78,55 @@ void typeMessage(std::string &message) {
 /* SEND PROTOCOL */
 Send_prot::Send_prot() {
 
-  //alloc small space for message, will bereallocated later when constructing serialized data.
-  this->serialized_data = (char*) malloc(10*sizeof(char));
-  if (serialized_data == NULL)
+    //alloc small space for message, will bereallocated later when constructing serialized data.
+    this->serialized_data = (char*) malloc(10*sizeof(char));
+    if (serialized_data == NULL)
     {
-      // error handling 
-      printf("Allocation of memory has failed. Probably not your fault :(");
-      exit(-1);
+        // error handling
+        printf("Allocation of memory has failed. Probably not your fault :(");
+        exit(-1);
     }
 
-  //fill in strings of the object
-  set_with_limit("Sender", this->sender, 8);
-  set_with_limit("Reciever", this->reciever, 8);
-  set_with_limit("Subject", this->subject, 80);
-  typeMessage(this->message);
+    //fill in strings of the object
+    set_with_limit("Sender", this->sender, 8);
+    set_with_limit("Reciever", this->reciever, 8);
+    set_with_limit("Subject", this->subject, 80);
+    typeMessage(this->message);
 }
 
 Send_prot::Send_prot(char* received_data) {
-  this->serialized_data = (char*) malloc(strlen(received_data)*sizeof(char));
 
-  this->serialized_data = received_data;
+    short length = received_data[0] << 8 | received_data[1];
 
-  for(int i = 2; i < sizeof(received_data); i++)
-  {
-    std::cout << received_data[i];
-  }
-  /*for(int i = 2; i < strlen(received_data); i++)
-  {
-    std::string buffer = "";
-    int str = 0;
+    length = ntohs(length);
 
-    if(i < 10)
+    std::string _temp = "";
+
+
+    this->serialized_data = new char[length];
+
+    this->serialized_data = received_data;
+
+    for(int i = 2; i < length; i++)
     {
-      this->sender.push_back(received_data[i]);
-      std::cout << received_data[i] << std::endl;
+        _temp[i-2] = received_data[i];
+    }
 
-      if(received_data[i] == '\0')
-      {
-        i = 10;
-        continue;
-      }
-    }*/
-  }
+    this->sender = _temp.substr(0, 8);
+    this->reciever = _temp.substr(9, 17);
+    this->subject = _temp.substr(18, 98);
+    this->message = _temp.substr(98, length-3);
+}
 
 Send_prot::~Send_prot() {
 
-	  free(this->serialized_data);
+    free(this->serialized_data);
 }
 
 
 //returns size needed for buffer to contain all data.
 int Send_prot::get_buffersize(){
-  return (2+9+9+81+this->message.size()+1);
+    return (2+9+9+81+this->message.size()+1);
 }
 
 //given all members of the Object are set, serialize all Data fot the networktransfer in a char* buffer array;
@@ -137,66 +134,71 @@ char *Send_prot::serialize() {
     int length = 2 + 9 + 9 + 81 + this->message.size() + 1; //length+sender+reciever+subject+messege
     int arrayPos = 0;
 
-  //allocate correct size for protocol package
-  char* tmp_a = (char*) realloc(this->serialized_data, length*sizeof(char));
-  if ( tmp_a == NULL ) // realloc has failed
+    //allocate correct size for protocol package
+    char* tmp_a = (char*) realloc(this->serialized_data, length*sizeof(char));
+    if ( tmp_a == NULL ) // realloc has failed
     {
-      // error handling
-      printf("The re-allocation of array serialized_data has failed. Probably not your fault :(");
-      free(this->serialized_data);
-      exit(-2);
+        // error handling
+        printf("The re-allocation of array serialized_data has failed. Probably not your fault :(");
+        free(this->serialized_data);
+        exit(-2);
     }
-  else //realloc was successful
+    else //realloc was successful
     {
-     this->serialized_data = tmp_a;
+        this->serialized_data = tmp_a;
     }
-  
+
     memset(this->serialized_data, '\0', sizeof(&this->serialized_data));
 
     //write short, indicating length of package, to first 2 Bytes of serialized_data. Bitwise to newort order automatically
     serialized_data[0] = length & 0xFF;
     serialized_data[1] = (length >> 8) & 0xFF;
 
-  //set protocol type. See protocols.h function 'get_protocol(char* serialized_data)' for further reference.
-  serialized_data[2] = '0'; //setting Protocol type to send_prot.
+    //set protocol type. See protocols.h function 'get_protocol(char* serialized_data)' for further reference.
+    serialized_data[2] = '0'; //setting Protocol type to send_prot.
 
-  //Write Sender into package.
-  arrayPos = 3;
-  for(unsigned int i = 0; i < 8; i++)
+    //Write Sender into package.
+    arrayPos = 3;
+    for(unsigned int i = 0; i < 8; i++)
     {
-      if(sender.size() > i) serialized_data[arrayPos] = sender[i];
-      else                  break;
-      arrayPos++;
+        if(sender.size() > i) serialized_data[arrayPos] = sender[i];
+        else                  break;
+        arrayPos++;
     }
-  //Write Reciever into package
-  arrayPos = 11;
-  for(unsigned int i = 0; i < 8; i++)
+    //Write Reciever into package
+    arrayPos = 11;
+    for(unsigned int i = 0; i < 8; i++)
     {
-      if(reciever.size() > i) serialized_data[arrayPos] = reciever[i];
-      else                    break;
-      arrayPos++;
+        if(reciever.size() > i) serialized_data[arrayPos] = reciever[i];
+        else                    break;
+        arrayPos++;
     }
-  //Write Subject into package
-  arrayPos = 19;
-  for(unsigned int i = 0; i < 80; i++)
+    //Write Subject into package
+    arrayPos = 19;
+    for(unsigned int i = 0; i < 80; i++)
     {
-      if(subject.size() > i) serialized_data[arrayPos] = subject[i];
-      else                   break;
-      arrayPos++;
+        if(subject.size() > i) serialized_data[arrayPos] = subject[i];
+        else                   break;
+        arrayPos++;
     }
-  //Write Subject into package
-  arrayPos = 99;
-  for(unsigned int i = 0; i < this->message.size(); i++)
+    //Write Subject into package
+    arrayPos = 99;
+    for(unsigned int i = 0; i < this->message.size(); i++)
     {
-      if(message.size() > i) serialized_data[arrayPos] = message[i];
-      else                   break;
-      arrayPos++;
+        if(message.size() > i) serialized_data[arrayPos] = message[i];
+        else                   break;
+        arrayPos++;
     }
     /* RECONVERTION TO SHORT FOR LATER
     short test = serialized_data[0] << 8 | serialized_data[1];
     test = ntohs(test);
     */
     return serialized_data;
+}
+
+std::string Send_prot::return_sender()
+{
+    return this->sender;
 }
 
 /* LIST PROTOCOL */
