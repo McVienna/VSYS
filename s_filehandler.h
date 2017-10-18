@@ -1,5 +1,6 @@
 #ifndef S_FILEHANDLER_H
 #define S_FILEHANDLER_H
+#include "protocols.h"
 
 class filehandler{
 private:
@@ -9,7 +10,7 @@ private:
 public:
     filehandler(std::string);
     ~filehandler();
-    void create_usr_dir(std::string, std::string);
+    void create_usr_dir(Send_prot *);
     std::string return_path();
 
 };

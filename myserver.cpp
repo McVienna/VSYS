@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
     socklen_t addrlen;
     std::string message;
     int size;
-    std::string user_path = "";
     std::string _path;
     filehandler *general_filehandler = NULL;
     Send_prot *instanciate_massage = NULL;
@@ -94,15 +93,8 @@ int main(int argc, char **argv) {
 
                     instanciate_massage = new Send_prot(buffer);
                     ///checks whether directory for user already exists or not! if(not) create directory for user;
-                    if(!(fs::is_directory(general_filehandler->return_path() + "/" + instanciate_massage->return_sender())))
-                    {
-                        fs::create_directories(general_filehandler->return_path() + "/" + instanciate_massage->return_sender());
-                        user_path = general_filehandler->return_path() + "/" + instanciate_massage->return_sender();
-                    }
-                    else
-                    {
-                        user_path = general_filehandler->return_path() + "/" + instanciate_massage->return_sender();
-                    }
+                    std::cout << "checking user directory!" << std::endl;
+                    general_filehandler->create_usr_dir(instanciate_massage);
 
                 } else if (size == 0) {
                     printf("Client closed remote socket\n");
