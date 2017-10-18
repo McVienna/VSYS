@@ -114,22 +114,52 @@ Send_prot::Send_prot(char* received_data) {
     for(int i = 3; i < length; i++)
       {
         _temp.resize (length);
-        _temp[i-3] = received_data[i];
+        if(received_data[i] != '\0')
+        {
+
+            _temp[i-3] = received_data[i];
+        }
+          else
+        {
+            _temp[i-3] = '*';
+        }
       }
 
-   this->sender = _temp.substr(0, 8);
-      cout << "Sender:" << this->sender << endl;
-   this->reciever = _temp.substr(7, 8);
-      cout << "Reciever:" << this->reciever << endl;
-  this->subject = _temp.substr(15, 80);
-      cout << "Subject:" << this->subject << endl;
-    this->message = _temp.substr(96, length - (80+8+8+2+1));
-      cout << "Message:" << endl << this->message << endl;
+    for(int i = 0; i < 8; i++)
+    {
+        if(_temp[i] != '*')
+        {
+            this->sender = _temp[i];
+        }
+    }
 
-    
-    
-    
-    
+    for(int i = 7; i < 15; i++)
+    {
+        if(_temp[i] != '*')
+        {
+            this->reciever = _temp[i];
+        }
+    }
+    std::cout << "Receiver: " << this->reciever << std::endl;
+
+    for(int i = 17; i < 97; i++)
+    {
+        if(_temp[i] != '*')
+        {
+            this->subject = _temp[i];;
+        }
+    }
+
+    std::cout << "Subject: " << this->subject << std::endl;
+
+    for(int i = 97; i < length; i++)
+    {
+        if(_temp[i] != '*')
+        {
+            this->message = _temp[i];
+        }
+    }
+    std::cout << "Message: " << this->message << std::endl;
 
 }
 

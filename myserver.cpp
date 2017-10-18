@@ -15,7 +15,7 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6551
+#define PORT 6550
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
