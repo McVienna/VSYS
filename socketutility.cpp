@@ -38,12 +38,12 @@ int sendall(int socketfd, char* buf, unsigned int &len)
 -0  client closed connection
 >0  size of data recieved.
 
-*/
+
 int recvall(int socketfd, char* buf, unsigned int &len)
 {
   unsigned int total = 0;         // how many bytes we’ve recieved
-  int bytesleft = len;  // how many we have left to recieve
   int size = 0;
+  short packagesize = 0;
 
   //first recieve
   while(size < 2)
@@ -52,7 +52,6 @@ int recvall(int socketfd, char* buf, unsigned int &len)
       if (size > 0)
         {
           total += size;
-          bytesleft -=size;
         }
       else if (size == 0)
         {
@@ -61,13 +60,33 @@ int recvall(int socketfd, char* buf, unsigned int &len)
       else
         {
           perror("recv error");
-          return EXIT_FAILURE;
+          return -1;
         }
     }
   
-  while(total < len)
+    packagesize = buf[0] << 8 | buf[1];
+    packagesize = ntohs(packagesize);
+    size = 0;
+
+  if(sizeof(buf) < packagesize)
     {
-      size = recv(socketfd, buf+total, bytesleft, 0);
+      char* tmp_a = (char*) realloc(buffer, protocol.get_buffersize()*sizeof(char));
+      if ( tmp_a == NULL ) // realloc has failed
+        {
+          // error handling
+          printf("The re-allocation of array serialized_data has failed. Probably not your fault :(");
+          free(buffer);
+          exit(-2);
+        }
+      else
+        {
+          buffer = tmp_a;
+        }
+    }
+  
+  while(total < packagesize)
+    {
+      size = recv(socketfd, buf+total, packagesize, 0);
       if (size == -1)
         {
           break;
@@ -81,3 +100,4 @@ int recvall(int socketfd, char* buf, unsigned int &len)
 }
 
 
+*/

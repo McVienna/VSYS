@@ -20,95 +20,100 @@
 
 using namespace std;
 
-int main (int argc, char **argv) {
+void vec_to_buf(std::vector, char *);
+
+int main(int argc, char **argv) {
+
+    std::vector<char> temp_buffer;
+    int server_socket_fd, client_socket_fd;
+    socklen_t addrlen;
+    std::string message;
+    int size;
+    unsigned int transmission_length;
+    std::string _path;
+    filehandler *general_filehandler = NULL;
+    Send_prot *instanciate_massage = NULL;
 
 
-  int server_socket_fd, client_socket_fd;
-  socklen_t addrlen;
-  char* buffer = ((char*) malloc(BUF*sizeof(char)));
-  char message[BUF];
-  int size;
-  std::string _path;
-  filehandler * general_filehandler = NULL;
-  Send_prot * instanciate_massage = NULL;
 
-  //check buffer-allocation
-    if (buffer == NULL)
-    {
-      // error handling 
-      printf("Allocation of memory has failed. Probably not your fault :(");
-      exit(-1);
+    //Create Socket
+    struct sockaddr_in address, cliaddress;
+    memset(&buffer, 0, sizeof(buffer));
+    memset(&message, 0, sizeof(message));
+    server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    memset(&address, 0, sizeof(address));
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    if (bind(server_socket_fd, (struct sockaddr *) &address, sizeof(address)) != 0) {
+        perror("bind error");
+        return EXIT_FAILURE;
     }
+    listen(server_socket_fd, 5);
 
-  //Create Socket
-  struct sockaddr_in address, cliaddress;
-  memset (&buffer, 0, sizeof(buffer));
-  memset (&message, 0, sizeof(message));
-  server_socket_fd = socket (AF_INET, SOCK_STREAM, 0);
-
-  memset(&address, 0, sizeof(address));
-  address.sin_family = AF_INET;
-  address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons (PORT);
-
-  if (bind ( server_socket_fd, (struct sockaddr *) &address, sizeof (address)) != 0)
-    {
-      perror("bind error");
-      return EXIT_FAILURE;
-    }
-  listen (server_socket_fd, 5);
-  
-  addrlen = sizeof (struct sockaddr_in);
+    addrlen = sizeof(struct sockaddr_in);
 
 //Main Program, runs until killed.
-  if(argc == 2) {
+    if (argc == 2) {
 
 
-    _path = argv[1];
+        _path = argv[1];
 
-    general_filehandler = new filehandler(_path);
+        general_filehandler = new filehandler(_path);
 
-    while (1) { //Wait for Connection
+        while (1) { //Wait for Connection
 
-      printf("Waiting for connections...\n");
-      client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
+            printf("Waiting for connections...\n");
+            client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
 
-      if (client_socket_fd > 0) {
-        printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
-        strcpy(buffer, "Welcome to TWMailer, Please enter your command:\n");
-        send(client_socket_fd, buffer, strlen(buffer), 0);
-      }
-      //Communication with Client
-      do {
-        size = recvall(client_socket_fd, buffer, BUF - 1, 0);
-        if (size > 0) {
-          buffer[size] = '\0';
-          printf("Message received: %s\n", buffer);
+            if (client_socket_fd > 0) {
+                printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
+                message = "Welcome to TWMailer, Please enter your command:\n";
+                std::copy(message.begin(), message.end(), std::back_inserter(temp_buffer));
 
-          instanciate_massage = new Send_prot(buffer);
+                char * buffer = new char[temp_buffer.size()];
+                vec_to_buf(temp_buffer, buffer);
 
-        } else if (size == 0) {
-          printf("Client closed remote socket\n");
-          break;
-        } else {
-          perror("recv error");
-          return EXIT_FAILURE;
+                send(client_socket_fd, buffer, strlen(buffer), 0);
+                delete buffer;
+
+            }
+            //Communication with Client
+            do {
+                transmission_length = (unsigned int) sizeof(buffer);
+                size = recvall(client_socket_fd, buffer, transmission_length);
+                if (size > 0) {
+
+                    instanciate_massage = new Send_prot(buffer);
+
+                } else if (size == 0) {
+                    printf("Client closed remote socket\n");
+                    break;
+                } else {
+                    perror("recv error");
+                    return EXIT_FAILURE;
+                }
+            } while (strncmp(buffer, "quit", 4) != 0);
+            close(client_socket_fd);
         }
-      } while (strncmp(buffer, "quit", 4) != 0);
-      close(client_socket_fd);
-    }
-    close(server_socket_fd);
-    return EXIT_SUCCESS;
-  }
-  else if(argc < 2)
-  {
-    perror("Usage: ./MyServer <Mailpoolpath> <Port>");
-    return EXIT_FAILURE;
-  }
-  else
-  {
-    return EXIT_FAILURE;
+        close(server_socket_fd);
+        return EXIT_SUCCESS;
+    } else if (argc < 2) {
+        perror("Usage: ./MyServer <Mailpoolpath> <Port>");
+        return EXIT_FAILURE;
+    } else {
+        return EXIT_FAILURE;
 
-  };
+    };
+}
+
+void vec_to_buf(std::vector &temp_buffer, char * buffer)
+{
+    for(int i = 0; i < temp_buffer.size(); i++)
+    {
+        buffer[i] = temp_buffer[i];
+    }
 }
 

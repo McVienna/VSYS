@@ -17,21 +17,13 @@ returns int depending on Protocol of 'serialized_data'
  1: List_prot
  2: Read_prot
  3: Delete_prot
-
- Also saves length of package recieved in &transmission_length
 */
-int get_protocol(char* recieved_data, unsigned short &transmission_length){
+int get_protocol(char* recieved_data){
   //check if recieved_data contains valid values.
-  if( recieved_data[0] == '\0'
-   || recieved_data[1] == '\0'
-   || recieved_data[2] == '\0')
+  if(recieved_data[2] == '\0')
     {
       return -1;
     }
-
-  //set transmission length
-  transmission_length = recieved_data[0] << 8 | recieved_data[1];
-  transmission_length = ntohs(transmission_length);
 
   return ((int) (recieved_data[2] - '0'));
 }
