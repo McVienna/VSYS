@@ -95,11 +95,12 @@ Send_prot::Send_prot() {
 }
 
 Send_prot::Send_prot(char* received_data) {
+  
   this->serialized_data = (char*) malloc(strlen(received_data)*sizeof(char));
 
   this->serialized_data = received_data;
 
-  for(int i = 2; i < sizeof(received_data); i++)
+  for(unsigned int i = 2; i < sizeof(received_data); i++)
   {
     std::cout << received_data[i];
   }
@@ -129,33 +130,24 @@ Send_prot::~Send_prot() {
 
 //returns size needed for buffer to contain all data.
 int Send_prot::get_buffersize(){
-  return (2+9+9+81+this->message.size()+1);
+  return (2+1+9+9+81+this->message.size()+1);
 }
 
 //given all members of the Object are set, serialize all Data fot the networktransfer in a char* buffer array;
 char *Send_prot::serialize() {
-    int length = 2 + 9 + 9 + 81 + this->message.size() + 1; //length+sender+reciever+subject+messege
+    int length = 2 + 1 + 8 + 8 + 80 + this->message.size(); //length+sender+reciever+subject+messege
     int arrayPos = 0;
 
   //allocate correct size for protocol package
-  char* tmp_a = (char*) realloc(this->serialized_data, length*sizeof(char));
-  if ( tmp_a == NULL ) // realloc has failed
-    {
-      // error handling
-      printf("The re-allocation of array serialized_data has failed. Probably not your fault :(");
-      free(this->serialized_data);
-      exit(-2);
-    }
-  else //realloc was successful
-    {
-     this->serialized_data = tmp_a;
-    }
-  
-    memset(this->serialized_data, '\0', sizeof(&this->serialized_data));
+  char* tmp_a = this->serialized_data;
+  serialized_data = new char[length];
+  delete tmp_a;
 
-    //write short, indicating length of package, to first 2 Bytes of serialized_data. Bitwise to newort order automatically
-    serialized_data[0] = length & 0xFF;
-    serialized_data[1] = (length >> 8) & 0xFF;
+  memset(this->serialized_data, '\0', sizeof(&this->serialized_data));
+
+  //write short, indicating length of package, to first 2 Bytes of serialized_data. Bitwise to newort order automatically
+  serialized_data[0] = length & 0xFF;
+  serialized_data[1] = (length >> 8) & 0xFF;
 
   //set protocol type. See protocols.h function 'get_protocol(char* serialized_data)' for further reference.
   serialized_data[2] = '0'; //setting Protocol type to send_prot.

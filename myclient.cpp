@@ -21,10 +21,11 @@ int main (int argc, char **argv) {
 //Create Socket
   int socket_fd;
   std::string userInput = "";
-  char* buffer = ((char*) malloc(BUF*sizeof(char))); 
+  char* buffer = new char[BUF]; 
   struct sockaddr_in address;
   int size;
   unsigned int transmission_length;
+  bool shallContinue = true;
 
   //check buffer-allocation
   if (buffer == NULL)
@@ -68,6 +69,7 @@ int main (int argc, char **argv) {
       perror("Connect error - no server available");
       return EXIT_FAILURE;
     }
+    delete buffer;
 //Communication with Server
   do
     {
@@ -80,33 +82,16 @@ int main (int argc, char **argv) {
         Send_prot protocol;
 
         //Check Buffer size, realloc, if neccassary.
-        if (sizeof(buffer) < (unsigned int) protocol.get_buffersize())
-          {
-            char* tmp_a = (char*) realloc(buffer, protocol.get_buffersize()*sizeof(char));
-            if ( tmp_a == NULL ) // realloc has failed
-              {
-                // error handling
-                printf("The re-allocation of array serialized_data has failed. Probably not your fault :(");
-                free(buffer);
-                exit(-2);
-              }
-            else
-              {
-                buffer = tmp_a;
-              }
-          }
+        transmission_length = protocol.get_buffersize();
+        char* buffer = new char[transmission_length];
         
         buffer = protocol.serialize();
-        transmission_length = (unsigned int) sizeof(buffer);
         if(sendall(socket_fd, buffer, transmission_length) == -1)
           {
             perror("sendall");
             printf("We only sent %d bytes because of the error!\n", transmission_length);
           }
       }
-
-
-
       /*
       fgets (buffer, BUF, stdin);
       //evaluate User Protocoll and put data onto buffer.
@@ -118,7 +103,7 @@ int main (int argc, char **argv) {
         }
         */
     } 
-  while (strcmp (buffer, "quit\n") != 0);
+  while (shallContinue != 0);
 
   close (socket_fd);
   free(buffer);

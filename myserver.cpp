@@ -20,11 +20,9 @@
 
 using namespace std;
 
-void vec_to_buf(std::vector, char *);
-
 int main(int argc, char **argv) {
 
-    std::vector<char> temp_buffer;
+    std::vector<char> m_buffer;
     int server_socket_fd, client_socket_fd;
     socklen_t addrlen;
     std::string message;
@@ -38,8 +36,6 @@ int main(int argc, char **argv) {
 
     //Create Socket
     struct sockaddr_in address, cliaddress;
-    memset(&buffer, 0, sizeof(buffer));
-    memset(&message, 0, sizeof(message));
     server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
     memset(&address, 0, sizeof(address));
@@ -71,22 +67,23 @@ int main(int argc, char **argv) {
             if (client_socket_fd > 0) {
                 printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
                 message = "Welcome to TWMailer, Please enter your command:\n";
-                std::copy(message.begin(), message.end(), std::back_inserter(temp_buffer));
+                std::copy(message.begin(), message.end(), std::back_inserter(m_buffer));
 
-                char * buffer = new char[temp_buffer.size()];
-                vec_to_buf(temp_buffer, buffer);
+                char * temp_buffer = new char[m_buffer.size()];
+                vec_to_buf(m_buffer, temp_buffer);
 
-                send(client_socket_fd, buffer, strlen(buffer), 0);
-                delete buffer;
+                send(client_socket_fd, temp_buffer, strlen(temp_buffer), 0);
+                delete temp_buffer;
 
             }
             //Communication with Client
             do {
-                transmission_length = (unsigned int) sizeof(buffer);
-                size = recvall(client_socket_fd, buffer, transmission_length);
+                //transmission_length = (unsigned int) sizeof(temp_buffer);
+                size = recvall(client_socket_fd, m_buffer);
                 if (size > 0) {
+                    char * temp_buffer = new char[m_buffer.size()];
 
-                    instanciate_massage = new Send_prot(buffer);
+                    instanciate_massage = new Send_prot(m_buffer);
 
                 } else if (size == 0) {
                     printf("Client closed remote socket\n");
@@ -95,7 +92,7 @@ int main(int argc, char **argv) {
                     perror("recv error");
                     return EXIT_FAILURE;
                 }
-            } while (strncmp(buffer, "quit", 4) != 0);
+            } while (strncmp(temp_buffer, "quit", 4) != 0);
             close(client_socket_fd);
         }
         close(server_socket_fd);
@@ -108,12 +105,3 @@ int main(int argc, char **argv) {
 
     };
 }
-
-void vec_to_buf(std::vector &temp_buffer, char * buffer)
-{
-    for(int i = 0; i < temp_buffer.size(); i++)
-    {
-        buffer[i] = temp_buffer[i];
-    }
-}
-
