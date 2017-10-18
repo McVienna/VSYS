@@ -25,7 +25,7 @@ int main (int argc, char **argv) {
   std::cout << "entering main" << std::endl;
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
-  char buffer[BUF];
+  char* buffer = ((char*) malloc(BUF*sizeof(char)));;
   char message[BUF];
   int size;
   std::string _path;

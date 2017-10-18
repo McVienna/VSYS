@@ -21,7 +21,7 @@ int main (int argc, char **argv) {
 //Create Socket
   int socket_fd;
   std::string userInput = "";
-  char* buffer = ((char*) malloc(BUF*sizeof(char)));
+  char* buffer = ((char*) malloc(BUF*sizeof(char))); 
   struct sockaddr_in address;
   int size;
   unsigned int transmission_length;

@@ -31,3 +31,26 @@ int sendall(int socketfd, char* buf, unsigned int &len)
   return n==-1?-1:0; // return -1 on failure, 0 on success
  
 }
+
+int recvall(int socketfd, char* buf, unsigned int &len)
+{
+  unsigned int total = 0;         // how many bytes we’ve recieved
+  int bytesleft = len;  // how many we have left to recieve
+  int n;
+
+  while(total < len)
+    {
+      n = recv(socketfd, buf+total, bytesleft, 0);
+      if (n == -1)
+        {
+          break;
+        }
+      total += n;
+      bytesleft -= n;
+    }
+
+  len = total;      // return number actually sent here
+  return n==-1?-1:0; // return -1 on failure, 0 on success
+}
+
+

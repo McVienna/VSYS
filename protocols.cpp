@@ -43,22 +43,23 @@ void set_with_limit(std::string name, std::string &toSet, unsigned int limit) {
   do
     {
       if(loop > 0)
-      {
-        cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
-      }
+        {
+          cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
+        }
       cout << name << "(" << limit << "): ";
       cin  >> toSet;
 
       loop++;
     }
-  while(toSet.size() < 0 && toSet.size() > limit);
+  while(toSet.size() < 1 || toSet.size() > limit);
 }
 
 //function to read Message typed by user into string.
 void typeMessage(std::string &message) {
   std::string buffer = "";
 
-  cout << "MESSAGE TYPER" << endl
+  cout << endl
+       << "MESSAGE TYPER" << endl
        << "To end message typing, enter an line containing a single dot." << endl
        << "Essentialy, hit the following keys in succesion: 'Enter' '.' 'Enter'" << endl << endl
        << "Enter message:" << endl;
