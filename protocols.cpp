@@ -84,6 +84,7 @@ void typeMessage(std::string &message) {
 
 /* SEND PROTOCOL */
 Send_prot::Send_prot() {
+
   //alloc small space for message, will bereallocated later when constructing serialized data.
   this->serialized_data = (char*) malloc(10*sizeof(char));
   if (serialized_data == NULL)
@@ -100,11 +101,32 @@ Send_prot::Send_prot() {
   typeMessage(this->message);
 }
 
-Send_prot::Send_prot(char* recieved_data) {
-  this->serialized_data = (char*) malloc(10*sizeof(char));
+Send_prot::Send_prot(char* received_data) {
+  this->serialized_data = (char*) malloc(strlen(received_data)*sizeof(char));
 
+  this->serialized_data = received_data;
 
-}
+  for(int i = 2; i < sizeof(received_data); i++)
+  {
+    std::cout << received_data[i];
+  }
+  /*for(int i = 2; i < strlen(received_data); i++)
+  {
+    std::string buffer = "";
+    int str = 0;
+
+    if(i < 10)
+    {
+      this->sender.push_back(received_data[i]);
+      std::cout << received_data[i] << std::endl;
+
+      if(received_data[i] == '\0')
+      {
+        i = 10;
+        continue;
+      }
+    }*/
+  }
 
 Send_prot::~Send_prot() {
 

@@ -15,14 +15,14 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6543
+#define PORT 6544
 ///Port hardcoded for comfort of testing ^^
 
 using namespace std;
 
 int main (int argc, char **argv) {
 
-  std::cout << "entering main" << std::endl;
+
   int server_socket_fd, client_socket_fd;
   socklen_t addrlen;
   char buffer[BUF];
@@ -30,6 +30,7 @@ int main (int argc, char **argv) {
   int size;
   std::string _path;
   filehandler * general_filehandler = NULL;
+  Send_prot * instanciate_massage = NULL;
 
   //Create Socket
   struct sockaddr_in address, cliaddress;
@@ -42,7 +43,6 @@ int main (int argc, char **argv) {
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons (PORT);
 
-  std::cout << "try to bind" << std::endl;
   if (bind ( server_socket_fd, (struct sockaddr *) &address, sizeof (address)) != 0)
     {
       perror("bind error");
@@ -54,7 +54,8 @@ int main (int argc, char **argv) {
 
 //Main Program, runs until killed.
   if(argc == 2) {
-    std::cout << "argument entered" << std::endl;
+
+
     _path = argv[1];
 
     general_filehandler = new filehandler(_path);
@@ -75,6 +76,9 @@ int main (int argc, char **argv) {
         if (size > 0) {
           buffer[size] = '\0';
           printf("Message received: %s\n", buffer);
+
+          instanciate_massage = new Send_prot(buffer);
+
         } else if (size == 0) {
           printf("Client closed remote socket\n");
           break;
