@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 
 #include "socketutility.h"
 
@@ -29,7 +30,8 @@ int sendall(int socketfd, char* buffer, unsigned int &len)
   int bytesleft = len;  // how many we have left to send
   int n;
 
-  /*DEBUG: TEST PRINTING OF ARRAY
+  /*DEBUG: TEST PRINTING OF ARRAY 
+  cout << "CLIENT BEFORE SEND" << endl;
   cout << ntohs(buffer[0] << 8 | buffer[1]) << endl;
   cout << ((int) (buffer[2] - '0')) << endl;
 
@@ -49,27 +51,26 @@ int sendall(int socketfd, char* buffer, unsigned int &len)
       total += n;
       bytesleft -= n;
     }
-
   len = total;      // return number actually sent here
-  return n==-1?-1:0; // return -1 on failure, 0 on success
+  return (n == -1) ? (-1) : (0); // return -1 on failure, 0 on success
  
 }
 
 
-/* recieve all Data from socket.
+/* receive all Data from socket.
 -1 error
  0  client closed connection
->0  size of data recieved.
+>0  size of data received.
 
 */
 int recvall(int socketfd, std::vector<char> &storage_buffer)
 {
-  unsigned int total = 0;         // how many bytes we’ve recieved
+  unsigned int total = 0;         // how many bytes we’ve received
   int size = 0;
   unsigned short packagesize = 0;
   char* buffer = new char[4];
 
-  //first recieve
+  //first receive
   while(total < 2)
     {
       size = recv(socketfd, buffer+total, 2-total, 0);
@@ -91,8 +92,6 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
   //get length of incoming package
   packagesize = buffer[0] << 8 | buffer[1];
   packagesize = ntohs(packagesize);
-
-  //DEBUG cout << "packagesize: " << packagesize << endl;
 
   //resize buffer
   char *temp = buffer;
@@ -119,6 +118,7 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
         }
     }
     /*DEBUG
+    cout << "SERVER AFTER RECIEVING" << endl;
     cout << ntohs(buffer[0] << 8 | buffer[1]) << endl;
     cout << ((buffer[2] - '0')) << endl;
     
@@ -126,14 +126,13 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
       {
         cout << buffer[i] << endl;
       }
-    */
+   */
   storage_buffer.resize(packagesize);
   for(unsigned int i = 0; i < packagesize; i++)
   {
       storage_buffer[i] = buffer[i];
   }
+
+  delete buffer;
   return size; // return -1 on failure, 0 on success
 }
-
-
-/**/

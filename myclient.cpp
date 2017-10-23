@@ -9,11 +9,13 @@
 #include <cstdio>
 #include <cstring>
 
+#include <string>
+
 #include "protocols.h"
 #include "socketutility.h"
 
 #define BUF 1024
-#define PORT 6550
+#define PORT 6551
 
 using namespace std;
 
@@ -25,7 +27,7 @@ int main (int argc, char **argv) {
   struct sockaddr_in address;
   int size;
   unsigned int transmission_length;
-  bool shallContinue = true;
+  bool shallContinue = false;
 
   //check buffer-allocation
   if (buffer == NULL)
@@ -83,29 +85,20 @@ int main (int argc, char **argv) {
 
         //Check Buffer size, realloc, if neccassary.
         transmission_length = protocol.get_buffersize();
-        char* buffer = new char[transmission_length];
+        char* buffer = new char[transmission_length]();
         
-        buffer = protocol.serialize();
+        protocol.serialize(buffer);
         if(sendall(socket_fd, buffer, transmission_length) == -1)
           {
             perror("sendall");
             printf("We only sent %d bytes because of the error!\n", transmission_length);
           }
+
+        delete buffer;
       }
-      /*
-      fgets (buffer, BUF, stdin);
-      //evaluate User Protocoll and put data onto buffer.
-      transmission_length = (unsigned int) strlen (buffer);
-      if(sendall(socket_fd, buffer, transmission_length) == -1)
-        {
-          perror("sendall");
-          printf("We only sent %d bytes because of the error!\n", transmission_length);
-        }
-        */
     } 
-  while (shallContinue != 0);
+  while (shallContinue == true);
 
   close (socket_fd);
-  free(buffer);
   return EXIT_SUCCESS;
 }

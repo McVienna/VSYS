@@ -8,14 +8,16 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
 #include <experimental/filesystem>
+#include <string>
 
 #include "socketutility.h"
 #include "protocols.h"
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6550
+#define PORT 6551
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;

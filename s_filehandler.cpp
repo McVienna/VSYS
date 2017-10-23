@@ -26,7 +26,7 @@ filehandler::~filehandler(){
 }
 
 void filehandler::create_usr_dir(Send_prot * instanciate_message) {
-    ///should create subdirectory if message recieved -> sub_dir name = username
+    ///should create subdirectory if message received -> sub_dir name = username
     std::string user_path = this->path + "/" + this->user;
     this->user = instanciate_message->return_sender();
 

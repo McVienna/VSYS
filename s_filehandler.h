@@ -2,6 +2,8 @@
 #define S_FILEHANDLER_H
 #include "protocols.h"
 
+#include <string>
+
 class filehandler{
 private:
     std::string path;
