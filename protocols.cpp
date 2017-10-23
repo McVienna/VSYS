@@ -125,41 +125,6 @@ Send_prot::Send_prot(char* received_data) {
         }
       }
 
-    for(int i = 0; i < 8; i++)
-    {
-        if(_temp[i] != '*')
-        {
-            this->sender = _temp[i];
-        }
-    }
-
-    for(int i = 7; i < 15; i++)
-    {
-        if(_temp[i] != '*')
-        {
-            this->reciever = _temp[i];
-        }
-    }
-    std::cout << "Receiver: " << this->reciever << std::endl;
-
-    for(int i = 17; i < 97; i++)
-    {
-        if(_temp[i] != '*')
-        {
-            this->subject = _temp[i];;
-        }
-    }
-
-    std::cout << "Subject: " << this->subject << std::endl;
-
-    for(int i = 97; i < length; i++)
-    {
-        if(_temp[i] != '*')
-        {
-            this->message = _temp[i];
-        }
-    }
-    std::cout << "Message: " << this->message << std::endl;
 
 }
 
