@@ -1,8 +1,10 @@
 #ifndef SOCKETUTILITY_H
 #define SOCKETUTILITY_H
 
-
+//Outsourced Utilility functions for Socket communication
 #include <vector>
+
+
 
 void vec_to_buf(std::vector<char> &, char *);
 int sendall (int , char* , unsigned int &);

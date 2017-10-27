@@ -17,12 +17,14 @@
 #include "s_filehandler.h"
 
 #define BUF 1024
-#define PORT 6551
+#define PORT 6552
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
 
 using namespace std;
+
+void buildProtocol(Protocol* emptyProtocol, int protocolType, char* data);
 
 int main(int argc, char **argv) {
 
@@ -30,11 +32,15 @@ int main(int argc, char **argv) {
     char* buffer = new char[BUF];
     int server_socket_fd, client_socket_fd;
     socklen_t addrlen;
+
     std::string message;
     int size;
+
+    int protocolType;
+    Protocol *instanciate_massage = NULL;
+
     std::string _path;
     filehandler *general_filehandler = NULL;
-    Send_prot *instanciate_massage = NULL;
 
 
 
@@ -84,28 +90,44 @@ int main(int argc, char **argv) {
             }
             //Communication with Client
             do {
+                //Recieve message
                 m_buffer.clear();
                 size = recvall(client_socket_fd, m_buffer);
-                if (size > 0) {
-
+                if (size > 0)
+                {
                     char *temp = buffer;
                     buffer     = new char[m_buffer.size()];
                     delete temp;
                     vec_to_buf(m_buffer, buffer);
 
-                    instanciate_massage = new Send_prot(buffer);
-                    ///checks whether directory for user already exists or not! if(not) create directory for user;
-                    std::cout << "checking user directory!" << std::endl;
-                    general_filehandler->create_usr_dir(instanciate_massage);
+                    //get protocol type. Check for error (-1)
+                    protocolType = get_protocol(buffer);
+                    if(protocolType < 0)
+                    {
+                        cout << "ERROR IM PROTOKOLLTYP" << endl; //TODO: HANDLE THIS ERROR
+                    }
+                    buildProtocol(instanciate_massage, protocolType, buffer);
 
-                } else if (size == 0) {
+                    /****TODO: HANDLE PROTOCOL DATA*****/
+                    
+                ///checks whether directory for user already exists or not! if(not) create directory for user;
+                    //std::cout << "checking user directory!" << std::endl;
+                    //general_filehandler->create_usr_dir(instanciate_massage);
+
+                }
+                else if (size == 0)
+                {
                     printf("Client closed remote socket\n");
                     break;
-                } else {
+                }
+                else
+                {
                     perror("recv error");
                     return EXIT_FAILURE;
                 }
-            } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later
+
+                delete instanciate_massage;
+            } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
         }
         close(server_socket_fd);
@@ -116,4 +138,37 @@ int main(int argc, char **argv) {
     } else {
         return EXIT_FAILURE;
     }
+}
+
+
+void buildProtocol(Protocol* emptyProtocol, int protocolType, char* data) {
+          /*
+      -1: error
+      0: Send_prot
+      1: List_prot
+      2: Read_prot
+      3: Delete_prot
+      */
+      switch(protocolType)
+      {
+        case 0:
+          cout << "RECIEVED SEND REQUEST" << endl;
+          emptyProtocol = new Send_prot(data);
+          break;
+
+        case 1:
+          cout << "RECIEVED LIST REQUEST" << endl;
+          emptyProtocol = new List_prot(data);
+          break;
+
+        case 2:
+          cout << "RECIEVED READ REQUEST" << endl;
+          emptyProtocol = new Read_prot(data);
+          break;
+
+        case 3:
+          cout << "RECIEVED DELETE REQUEST" << endl;
+          emptyProtocol = new Delete_prot(data);
+          break;
+      }
 }

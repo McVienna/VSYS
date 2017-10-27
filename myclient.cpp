@@ -13,21 +13,22 @@
 
 #include "protocols.h"
 #include "socketutility.h"
+#include "userHandlerIO.h"
 
 #define BUF 1024
-#define PORT 6551
+#define PORT 6552
 
 using namespace std;
 
 int main (int argc, char **argv) {
 //Create Socket
   int socket_fd;
-  std::string userInput = "";
+  int userInput;
   char* buffer = new char[BUF]; 
   struct sockaddr_in address;
   int size;
   unsigned int transmission_length;
-  bool shallContinue = false;
+  bool shallContinue = true;
 
   //check buffer-allocation
   if (buffer == NULL)
@@ -75,27 +76,66 @@ int main (int argc, char **argv) {
 //Communication with Server
   do
     {
-      cout << ("Send Request: ");
-      cin  >> userInput;
+      Protocol* protocol;
 
-      if(userInput == "SEND")
+      printMenu();
+      userInput = getRequestInput();
+      
+      /*
+      -1: error
+      0: Send_prot
+      1: List_prot
+      2: Read_prot
+      3: Delete_prot
+      */
+      switch(userInput)
       {
-        //create Protocol Object
-        Send_prot protocol;
+        case 0:
+          cout << "SEND A NEW MESSAGE" << endl;
+          cout << "Please enter required data." << endl << endl;
+          protocol = new Send_prot();
+          break;
 
-        //Check Buffer size, realloc, if neccassary.
-        transmission_length = protocol.get_buffersize();
-        char* buffer = new char[transmission_length]();
-        
-        protocol.serialize(buffer);
-        if(sendall(socket_fd, buffer, transmission_length) == -1)
-          {
-            perror("sendall");
-            printf("We only sent %d bytes because of the error!\n", transmission_length);
-          }
+        case 1:
+          cout << "LIST ALL MESSAGES" << endl;
+          cout << "Please enter required data." << endl << endl;
+          protocol = new List_prot();
+          break;
 
-        delete buffer;
+        case 2:
+          cout << "READ A MESSAGE" << endl;
+          cout << "Please enter required data." << endl << endl;
+          protocol = new Read_prot();
+          break;
+
+        case 3:
+          cout << "DELETE A MESSAGE" << endl;
+          cout << "Please enter required data." << endl << endl;
+          protocol = new Delete_prot();
+          break;
+
+        case -1:
+        default:
+          shallContinue = false;
+          cout << "Terminating program..." << endl;
+          continue; //jump to end of loop
+          break;
       }
+
+      //Check Buffer size, realloc, if neccassary.
+      transmission_length = protocol->get_buffersize();
+      char* buffer = new char[transmission_length]();
+      
+      protocol->serialize(buffer);
+      if (sendall(socket_fd, buffer, transmission_length) == -1)
+        {
+          perror("sendall");
+          printf("We only sent %d bytes because of the error!\n", transmission_length);
+        }
+
+      delete buffer;
+      delete protocol;
+      
     } 
   while (shallContinue == true);
 

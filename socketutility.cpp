@@ -57,11 +57,11 @@ int sendall(int socketfd, char* buffer, unsigned int &len)
 }
 
 
-/* receive all Data from socket.
+/*
+receive all Data from socket.
 -1 error
  0  client closed connection
 >0  size of data received.
-
 */
 int recvall(int socketfd, std::vector<char> &storage_buffer)
 {
@@ -75,18 +75,18 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
     {
       size = recv(socketfd, buffer+total, 2-total, 0);
       if (size > 0)
-        {
+      {
           total += size;
-        }
+      }
       else if (size == 0)
-        {
+      {
           return 0;
-        }
+      }
       else
-        {
+      {
           perror("recv error");
           return -1;
-        }
+      }
     }
   
   //get length of incoming package
@@ -101,22 +101,22 @@ int recvall(int socketfd, std::vector<char> &storage_buffer)
     
 
   while(total < packagesize)
-    {
+  {
       size = recv(socketfd, buffer+total, total-packagesize, 0);
       if (size > 0)
-        {
+      {
           total += size;
-        }
+      }
       else if (size == 0)
-        {
+      {
           return 0;
-        }
+      }
       else
-        {
+      {
           perror("recv error");
           return -1;
-        }
-    }
+      }
+  }
     /*DEBUG
     cout << "SERVER AFTER RECIEVING" << endl;
     cout << ntohs(buffer[0] << 8 | buffer[1]) << endl;
