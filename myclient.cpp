@@ -38,7 +38,6 @@ int main (int argc, char **argv) {
     exit(-1);
   }
 
-
   //Check Arguments
   if( argc < 2 )
     {
@@ -116,6 +115,13 @@ int main (int argc, char **argv) {
           cout << "DELETE A MESSAGE" << endl;
           cout << "Please enter required data." << endl << endl;
           protocol = new Delete_prot();
+          break;
+
+        case 4:
+          cout << "LOGIN!" << endl;
+          cout << "Please enter required data." << endl
+               << endl;
+          protocol = new Login_prot();
           break;
 
         case -1:

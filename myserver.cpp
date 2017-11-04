@@ -50,7 +50,16 @@ int main(int argc, char **argv) {
     std::string _path;
     filehandler *general_filehandler = NULL;
 
+    LDAP *myldap; /* LDAP resource handle */
 
+    /* setup LDAP connection */
+    if ((myldap = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
+    {
+        perror("ldap_init failed");
+        return EXIT_FAILURE;
+    }
+
+    printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
 
     //Create Socket
     struct sockaddr_in address, cliaddress;
@@ -116,13 +125,13 @@ int main(int argc, char **argv) {
                         return EXIT_FAILURE;
                     }
                     buildProtocol(instanciate_massage, protocolType, buffer);
+                    
 
                     /****TODO: HANDLE PROTOCOL DATA*****/
                     
-                ///checks whether directory for user already exists or not! if(not) create directory for user;
+                    //checks whether directory for user already exists or not! if(not) create directory for user;
                     //std::cout << "checking user directory!" << std::endl;
-                    general_filehandler->create_usr_dir(&instanciate_massage);
-
+                    general_filehandler->create_usr_dir(instanciate_massage);
                 }
                 else if (size == 0)
                 {
@@ -148,7 +157,6 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 }
-
 
 void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
           /*
@@ -179,5 +187,10 @@ void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
           cout << "RECIEVED DELETE REQUEST" << endl;
           emptyProtocol = new Delete_prot(data);
           break;
+
+        case 4:
+            cout << "RECIEVED LOGIN REQUEST" << endl;
+            emptyProtocol = new Login_prot(data);
+            break;
       }
 }

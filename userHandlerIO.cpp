@@ -97,6 +97,18 @@ void printMenu() {
       << " "
       << "|" << std::endl		     
 
+    << "|" << std::setw(linePadding)
+    << "<5> LOGIN: "
+    << "|" << std::endl
+
+      << "|" << std::setw(linePadding)
+      << "Log into your TW-Account!"
+      << "|" << std::endl
+
+      << "|" << std::setw(linePadding)
+      << " "
+      << "|" << std::endl		     
+      
       << "|" << std::setw(linePadding)
       << " "
       << "|" << std::endl		    
@@ -162,6 +174,10 @@ int getRequestInput() {
       else if (input == "4" || input == "DEL")
       {
         return 3;
+      }
+      else if (input == "5" || input == "LOGIN")
+      {
+        return 4;
       }
       else if (input == "0" || input == "QUIT")
       {

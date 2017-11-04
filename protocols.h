@@ -117,8 +117,25 @@ class Delete_prot  : public Protocol{
     std::string message_nr;
 
     const int USERNAME_SIZE = 8;
-
 };
-    
+
+//Protocol for deleting a message specified by the user.
+class Login_prot : public Protocol
+{
+public:
+  Login_prot();
+  Login_prot(char *received_data); //used to build Object after recieving Data
+  ~Login_prot();
+
+  void serialize(char *serialized_data); //serializes all data into char Array.
+  int get_buffersize();                  //returns size needed for buffer to contain all data.
+
+private:
+  std::string username;
+  std::string password;
+
+  const int USERNAME_SIZE = 8;
+  const int PASSWORD_SIZE = 64;
+};
 
 #endif /* PROTOCOLS_H*/

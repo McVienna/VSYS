@@ -12,7 +12,7 @@ private:
 public:
     filehandler(std::string);
     ~filehandler();
-    void create_usr_dir(Send_prot *);
+    void create_usr_dir(Protocol *&);
     std::string return_path();
 
 };

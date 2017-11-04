@@ -25,7 +25,9 @@ filehandler::~filehandler(){
 
 }
 
-void filehandler::create_usr_dir(Send_prot * instanciate_message) {
+void filehandler::create_usr_dir(Protocol* &recieved_prot) {
+
+    Send_prot* instanciate_message = static_cast<Send_prot *>(recieved_prot);
     ///should create subdirectory if message received -> sub_dir name = username
     std::string user_path = this->path + "/" + this->user;
     this->user = instanciate_message->return_sender();

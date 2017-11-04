@@ -425,3 +425,66 @@ void Delete_prot::serialize(char* serialized_data) {
       test = ntohs(test);
       */
   }
+
+  /************************LOGIN PROTOCOL************************/
+  Login_prot::Login_prot()
+  {
+      //fill in strings of the object
+      set_with_limit("Username", this->username, USERNAME_SIZE);
+      set_with_limit("Password", this->password, PASSWORD_SIZE);
+  }
+
+  //Build Object with given serialized data. Probably only used by Server, receiving the data from client.
+  Login_prot::Login_prot(char *received_data)
+  {
+      int arrayPos = 0;
+
+      //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
+      short length = received_data[0] << 8 | received_data[1];
+      length = ntohs(length);
+
+      arrayPos += PROTOCOL_HEADER_SIZE;
+
+      this->username.resize(USERNAME_SIZE);
+      this->password.resize(PASSWORD_SIZE);
+
+      deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+      deserialize_string(received_data, arrayPos, this->password, PASSWORD_SIZE);
+  }
+
+  Login_prot::~Login_prot()
+  {
+  }
+
+  //returns size needed for buffer to contain all data.
+  int Login_prot::get_buffersize()
+  {
+      return (PROTOCOL_HEADER_SIZE + USERNAME_SIZE + PASSWORD_SIZE);
+  }
+
+  //given all members of the Object are set, serialize all Data fot the networktransfer in a char* buffer array;
+  void Login_prot::serialize(char *serialized_data)
+  {
+      int length = this->get_buffersize();
+      int arrayPos = 0;
+
+      //write short, indicating length of package, to first 2 Bytes of serialized_data. Bitwise to newort order automatically
+      serialized_data[0] = length & 0xFF;
+      serialized_data[1] = (length >> 8) & 0xFF;
+
+      //set protocol type. See protocols.h function 'get_protocol(char* serialized_data)' for further reference.
+      serialized_data[2] = '4'; //setting Protocol type to Login_prot.
+
+      arrayPos += PROTOCOL_HEADER_SIZE;
+
+      //Write Sender into package.
+      serialize_string(serialized_data, arrayPos, this->username, USERNAME_SIZE);
+      arrayPos += USERNAME_SIZE;
+
+      serialize_string(serialized_data, arrayPos, this->password, PASSWORD_SIZE);
+
+      /* RECONVERTION TO SHORT FOR LATER
+      short test = serialized_data[0] << 8 | serialized_data[1];
+      test = ntohs(test);
+      */
+  }
