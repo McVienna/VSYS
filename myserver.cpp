@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     int size;
 
     int protocolType;
-    Protocol *instanciate_massage = NULL;
+    Protocol *recieved_Protocol = NULL;
 
     std::string _path;
     filehandler *general_filehandler = NULL;
@@ -124,14 +124,33 @@ int main(int argc, char **argv) {
                         perror("ERR: Protocol transmission went wrong!");
                         return EXIT_FAILURE;
                     }
-                    buildProtocol(instanciate_massage, protocolType, buffer);
+                    buildProtocol(recieved_Protocol, protocolType, buffer);
+                    
+                    switch(protocolType)
+                    {
+                        case 0: //SEND
+                            general_filehandler->create_usr_dir(recieved_Protocol);
+                            break;
+
+                        case 1: //LIST
+                            
+                            break;
+
+                        case 2: //READ
+                            
+                            break;
+
+                        case 3: //DEL
+                            
+                            break;
+
+                        case 4: //LOGIN
+                            ldapLogin()
+                            break;
+                            
+                    }
                     
 
-                    /****TODO: HANDLE PROTOCOL DATA*****/
-                    
-                    //checks whether directory for user already exists or not! if(not) create directory for user;
-                    //std::cout << "checking user directory!" << std::endl;
-                    general_filehandler->create_usr_dir(instanciate_massage);
                 }
                 else if (size == 0)
                 {
