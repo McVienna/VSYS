@@ -12,9 +12,17 @@
 #include <experimental/filesystem>
 #include <string>
 
+#include <thread>
+#include <mutex>
+
+#include <ldap.h>
+
 #include "socketutility.h"
 #include "protocols.h"
 #include "s_filehandler.h"
+
+#define LDAP_HOST "ldap.technikum-wien.at"
+#define LDAP_PORT 389
 
 #define BUF 1024
 #define PORT 6552
@@ -24,7 +32,7 @@ namespace fs = std::experimental::filesystem::v1;
 
 using namespace std;
 
-void buildProtocol(Protocol* emptyProtocol, int protocolType, char* data);
+void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data);
 
 int main(int argc, char **argv) {
 
@@ -104,7 +112,8 @@ int main(int argc, char **argv) {
                     protocolType = get_protocol(buffer);
                     if(protocolType < 0)
                     {
-                        cout << "ERROR IM PROTOKOLLTYP" << endl; //TODO: HANDLE THIS ERROR
+                        perror("ERR: Protocol transmission went wrong!");
+                        return EXIT_FAILURE;
                     }
                     buildProtocol(instanciate_massage, protocolType, buffer);
 
@@ -141,7 +150,7 @@ int main(int argc, char **argv) {
 }
 
 
-void buildProtocol(Protocol* emptyProtocol, int protocolType, char* data) {
+void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
           /*
       -1: error
       0: Send_prot

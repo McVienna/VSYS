@@ -73,6 +73,10 @@ int main (int argc, char **argv) {
       return EXIT_FAILURE;
     }
     delete buffer;
+
+
+
+    
 //Communication with Server
   do
     {

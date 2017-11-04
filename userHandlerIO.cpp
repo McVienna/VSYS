@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 
+//Menu-Formatting Parameters
 #define MAX_LINE_WIDTH 86
 #define TITLE_LENGTH   9
 
