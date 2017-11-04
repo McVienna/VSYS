@@ -118,10 +118,10 @@ int main(int argc, char **argv) {
                     buildProtocol(instanciate_massage, protocolType, buffer);
 
                     /****TODO: HANDLE PROTOCOL DATA*****/
-                    
-                ///checks whether directory for user already exists or not! if(not) create directory for user;
-                    //std::cout << "checking user directory!" << std::endl;
-                    general_filehandler->create_usr_dir(&instanciate_massage);
+
+                    //general_filehandler = new filehandler(_path, instanciate_massage);
+
+                    general_filehandler->create_user(instanciate_massage);
 
                 }
                 else if (size == 0)

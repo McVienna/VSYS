@@ -6,9 +6,15 @@
 namespace fs = std::experimental::filesystem::v1;
 
 
+//Protocol * emptyProtocol = NULL;
+
 filehandler::filehandler(std::string m_path){
 
+    //Send_prot * insta_message = static_cast<Send_prot*>(rec_prot);
+
     this->path = m_path;
+
+    std::cout << "Hello im your filehandler for today!" << std::endl;
 
     if(!(fs::is_directory(this->path)))
     {
@@ -19,30 +25,27 @@ filehandler::filehandler(std::string m_path){
 
     }
 
+    //std::cout << insta_message->return_sender();
+
+}
+
+void filehandler::create_user(Protocol* &rec_prot)
+{
+    std::cout << "Hello i should create a user directory!" << std::endl;
+
+    Send_prot * insta_message = static_cast<Send_prot*>(rec_prot);
+
+    std::cout << "Your user is -> "<< insta_message->return_sender() << std::endl;
 }
 
 filehandler::~filehandler(){
 
 }
 
-void filehandler::create_usr_dir(Send_prot * instanciate_message) {
-    ///should create subdirectory if message received -> sub_dir name = username
-    std::string user_path = this->path + "/" + this->user;
-    this->user = instanciate_message->return_sender();
-
-    if(!(fs::is_directory(user_path)))
-    {
-        fs::create_directories(user_path);
-        this->path = user_path;
-    }
-    else
-    {
-        this->path = user_path;
-    }
-}
 
 std::string filehandler::return_path()
 {
     return this->path;
 }
+
 

@@ -11,8 +11,8 @@ private:
 
 public:
     filehandler(std::string);
+    void create_user(Protocol*&);
     ~filehandler();
-    void create_usr_dir(Send_prot *);
     std::string return_path();
 
 };
