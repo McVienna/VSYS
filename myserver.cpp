@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 
                     //general_filehandler = new filehandler(_path, instanciate_massage);
 
-                    general_filehandler->create_user(instanciate_massage);
+                    general_filehandler->handle_message(instanciate_massage);
 
                 }
                 else if (size == 0)

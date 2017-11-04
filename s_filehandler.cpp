@@ -1,4 +1,7 @@
 #include <iostream>
+#include <sstream>
+#include <ctime>
+#include <fstream>
 #include "s_filehandler.h"
 #include "protocols.h"
 #include <experimental/filesystem>
@@ -29,13 +32,42 @@ filehandler::filehandler(std::string m_path){
 
 }
 
-void filehandler::create_user(Protocol* &rec_prot)
+void filehandler::handle_message(Protocol* &rec_prot)
 {
-    std::cout << "Hello i should create a user directory!" << std::endl;
+    std::string user_path;
+    std::string time;
+    std::stringstream _cast;
+
+    std::time_t result = std::time(nullptr);
+
+    _cast << result;
+
+    time = _cast.str();
 
     Send_prot * insta_message = static_cast<Send_prot*>(rec_prot);
 
-    std::cout << "Your user is -> "<< insta_message->return_sender() << std::endl;
+    user_path = this->path + "/" + insta_message->return_sender();
+
+    std::string msg_name = user_path + "/" + time + ".txt"  ;
+
+    if(!(fs::is_directory(user_path)))
+    {
+        fs::create_directories(user_path);
+
+        std::ofstream message_file (msg_name);
+
+        message_file << "#" << insta_message->return_sender();
+
+
+    }
+    else
+    {
+        std::ofstream message_file (msg_name);
+
+        message_file << "#" << insta_message->return_sender();
+    }
+
+
 }
 
 filehandler::~filehandler(){
@@ -46,6 +78,13 @@ filehandler::~filehandler(){
 std::string filehandler::return_path()
 {
     return this->path;
+}
+
+void filehandler::write_data_to_file(std::ofstream msg_file, Send_prot * rec_msg)
+{
+    msg_file << rec_msg->return_sender();
+    msg_file.close();
+
 }
 
 
