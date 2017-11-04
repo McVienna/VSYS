@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
                     
                 ///checks whether directory for user already exists or not! if(not) create directory for user;
                     //std::cout << "checking user directory!" << std::endl;
-                    //general_filehandler->create_usr_dir(instanciate_massage);
+                    general_filehandler->create_usr_dir(&instanciate_massage);
 
                 }
                 else if (size == 0)
