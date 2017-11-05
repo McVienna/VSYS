@@ -25,7 +25,7 @@
 #define LDAP_PORT 389
 
 #define BUF 1024
-#define PORT 6552
+#define PORT 6554
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
 
     std::string _path;
     filehandler *general_filehandler = NULL;
+
 
     //Create Socket
     struct sockaddr_in address, cliaddress;
@@ -107,6 +108,7 @@ int main(int argc, char **argv) {
                 }
 
                 printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
+
 
                 //Recieve message
                 m_buffer.clear();
@@ -166,7 +168,8 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
 
-                delete received_Protocol;
+                delete recieved_Protocol;
+                
             } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
         }

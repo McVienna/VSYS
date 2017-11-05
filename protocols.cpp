@@ -64,17 +64,24 @@ void Protocol::serialize_string(char* serialized_Array, int setPosition, std::st
 }
 
 //Given an Array, and a starting Indet('setPosition'), derseialize into String, for max of string Length
-void Protocol::deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength) {
+int Protocol::deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength) {
 
-    for(unsigned int i = 0; i < (unsigned int) maxStringLength; i++)
+    unsigned int i = 0;
+
+    for(i = 0; i < (unsigned int) maxStringLength; i++)
     {
         if(serialized_Array[setPosition+i] != 0)
         {
             intoString[i] = serialized_Array[setPosition+i];
-            cout << serialized_Array[setPosition + i] << endl;
+
         }
-        else                  break;
+        else
+        {
+            return i;
+        }
     }
+
+    return i;
 }
 
 
@@ -97,6 +104,7 @@ Send_prot::Send_prot(char* received_data) {
 
     int arrayPos = 0;
     int messageSize = 0;
+    int stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -105,21 +113,27 @@ Send_prot::Send_prot(char* received_data) {
 
     arrayPos += PROTOCOL_HEADER_SIZE;
 
+    //first resize strings for maximum possible size
     this->sender.resize(SENDER_SIZE);
     this->receiver.resize(RECEIVER_SIZE);
     this->subject.resize(SUBJECT_SIZE);
     this->message.resize(messageSize);
 
-    deserialize_string(received_data, arrayPos, this->sender, SENDER_SIZE);
-    arrayPos += SENDER_SIZE;
+    //Deserialize string from buffer and resize to correct size to avoid trailing zeros
+    stringSize = deserialize_string(received_data, arrayPos, this->sender, SENDER_SIZE);
+    arrayPos += SENDER_SIZE; 
+    this->sender.resize(stringSize);
 
-    deserialize_string(received_data, arrayPos, this->receiver, RECEIVER_SIZE);
+    stringSize = deserialize_string(received_data, arrayPos, this->receiver, RECEIVER_SIZE);
     arrayPos += RECEIVER_SIZE;
+    this->receiver.resize(stringSize);
 
-    deserialize_string(received_data, arrayPos, this->subject, SUBJECT_SIZE);
+    stringSize = deserialize_string(received_data, arrayPos, this->subject, SUBJECT_SIZE);
     arrayPos += SUBJECT_SIZE;
-    
-    deserialize_string(received_data, arrayPos, this->message, messageSize);
+    this->subject.resize(stringSize);
+
+    stringSize = deserialize_string(received_data, arrayPos, this->message, messageSize);
+    this->message.resize(stringSize);
     
 }
 
@@ -173,6 +187,21 @@ std::string Send_prot::return_sender() {
     return this->sender;
 }
 
+std::string Send_prot::return_receiver()
+{
+    return this->receiver;
+}
+
+std::string Send_prot::return_subject()
+{
+    return this->subject;
+}
+
+std::string Send_prot::return_message()
+{
+    return this->message;
+}
+
 
 
 //function to read Message typed by user into string.
@@ -188,7 +217,7 @@ void Send_prot::typeMessage(std::string &message) {
     while(buffer != ".")
     {
         buffer = "";
-        cin >> buffer;
+        getline(std::cin, buffer);
         message.append(buffer);
         message.push_back('\n');
     }
@@ -210,6 +239,7 @@ List_prot::List_prot() {
 List_prot::List_prot(char* received_data) {
     
         int arrayPos = 0;
+        std::string stringSize;
     
         //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
         short length = received_data[0] << 8 | received_data[1];
@@ -220,7 +250,8 @@ List_prot::List_prot(char* received_data) {
         this->username.resize(USERNAME_SIZE);
         
     
-        deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+        stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+        this->username.resize(stringSize);
         
 }
     
@@ -292,6 +323,7 @@ Read_prot::Read_prot(char* received_data) {
     
     int arrayPos = 0;
     int message_nrSize = 0;
+    std::string stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -303,8 +335,11 @@ Read_prot::Read_prot(char* received_data) {
     this->username.resize(USERNAME_SIZE);
     this->message_nr.resize(length -(PROTOCOL_HEADER_SIZE + USERNAME_SIZE));
     
-    deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
-    deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
+    stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+    this->username.resize(stringSize);
+
+    stringSize = deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
+    this->message_nr.resize(stringSize);
 }
     
 Read_prot::~Read_prot() {
@@ -379,6 +414,7 @@ Delete_prot::Delete_prot(char* received_data) {
     
     int arrayPos = 0;
     int message_nrSize = 0;
+    std::string stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -390,8 +426,11 @@ Delete_prot::Delete_prot(char* received_data) {
     this->username.resize(USERNAME_SIZE);
     this->message_nr.resize(length -(PROTOCOL_HEADER_SIZE + USERNAME_SIZE));
     
-    deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
-    deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
+    stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+    this->username.resize(stringSize);
+
+    stringSize = deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
+    this->message_nr.resize(stringSize);
 }
     
 Delete_prot::~Delete_prot() {
@@ -442,6 +481,7 @@ void Delete_prot::serialize(char* serialized_data) {
   Login_prot::Login_prot(char *received_data)
   {
       int arrayPos = 0;
+      std::string stringSize;
 
       //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
       short length = received_data[0] << 8 | received_data[1];
@@ -452,8 +492,11 @@ void Delete_prot::serialize(char* serialized_data) {
       this->username.resize(USERNAME_SIZE);
       this->password.resize(PASSWORD_SIZE);
 
-      deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
-      deserialize_string(received_data, arrayPos, this->password, PASSWORD_SIZE);
+      stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
+      this->username.resize(stringSize);
+
+      stringSize = deserialize_string(received_data, arrayPos, this->password, PASSWORD_SIZE);
+      this->password.resize(stringSize);
   }
 
   Login_prot::~Login_prot()

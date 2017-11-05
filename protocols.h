@@ -37,7 +37,7 @@ class Protocol {
     void serialize_string(char* serialized_Array, int setPosition, std::string toSerialize, int maxStringLength);
 
     //Given an Array, and a starting Indet('setPosition'), derseialize into String, for max of string Length
-    void deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength);
+    int deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength);
 
 };
 
@@ -52,6 +52,9 @@ class Send_prot : public Protocol {
     int get_buffersize(); //returns size needed for buffer to contain all data.
 
     std::string return_sender();
+    std::string return_receiver();
+    std::string return_subject();
+    std::string return_message();
 
   private:
     std::string sender;

@@ -56,7 +56,13 @@ void filehandler::handle_message(Protocol* &rec_prot)
 
         std::ofstream message_file (msg_name);
 
-        message_file << "#" << insta_message->return_sender();
+        message_file << "#" << insta_message->return_sender() << "#" << '\n';
+
+        message_file << "#" << insta_message->return_receiver() << "#"  << '\n';
+
+        message_file << "#" << insta_message->return_subject() << "#"  << '\n';
+
+        message_file << "#" << insta_message->return_message() << "#"  << '\n';
 
 
     }
@@ -64,7 +70,13 @@ void filehandler::handle_message(Protocol* &rec_prot)
     {
         std::ofstream message_file (msg_name);
 
-        message_file << "#" << insta_message->return_sender();
+        message_file << "#" << insta_message->return_sender() << "#" << '\n';
+
+        message_file << "#" << insta_message->return_receiver() << "#"  << '\n';
+
+        message_file << "#" << insta_message->return_subject() << "#"  << '\n';
+
+        message_file << "#" << insta_message->return_message() << "#"  << '\n';
     }
 
 
