@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
             if (size > 0)
             {
                 //in case of send_prot a dynamically sized Buffer is allocated
-                char* receiveBuffer;
+                char* receiveBuffer = new char[1];
                 char* temp = receiveBuffer;
 
                 receiveBuffer  = new char[m_buffer.size()];
@@ -138,8 +138,10 @@ int main(int argc, char **argv) {
                     perror("ERR: Protocol transmission went wrong!");
                     return EXIT_FAILURE;
                 }
+                cout << "Hier?" << endl;
                 buildProtocol(received_Protocol, protocolType, receiveBuffer);
                 delete receiveBuffer;
+                cout << "Hier?" << endl;
 
                 switch(protocolType)
                 {
@@ -175,11 +177,13 @@ int main(int argc, char **argv) {
                         if(rc == -1)
                         {
                             strcpy(buffer, "Too many attempts...pls wait another");
+                            printf("%s\n", buffer);
                         }
 
                         else if (rc != LDAP_SUCCESS)
                         {
                             sprintf(buffer, "LDAP error: %s\n", ldap_err2string(rc));
+                            printf("%s\n", buffer);
                         }
                         //TODO: SEND MESSAGE TO CLIENT
                         break;
