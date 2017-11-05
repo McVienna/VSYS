@@ -15,6 +15,7 @@ public:
     ~filehandler();
     std::string return_path();
 
+    void write_data_to_file(std::ofstream , Send_prot *);
 };
 
 

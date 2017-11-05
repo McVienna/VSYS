@@ -239,7 +239,7 @@ List_prot::List_prot() {
 List_prot::List_prot(char* received_data) {
     
         int arrayPos = 0;
-        std::string stringSize;
+        int stringSize;
     
         //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
         short length = received_data[0] << 8 | received_data[1];
@@ -323,7 +323,7 @@ Read_prot::Read_prot(char* received_data) {
     
     int arrayPos = 0;
     int message_nrSize = 0;
-    std::string stringSize;
+    int stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -414,7 +414,7 @@ Delete_prot::Delete_prot(char* received_data) {
     
     int arrayPos = 0;
     int message_nrSize = 0;
-    std::string stringSize;
+    int stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -481,7 +481,7 @@ void Delete_prot::serialize(char* serialized_data) {
   Login_prot::Login_prot(char *received_data)
   {
       int arrayPos = 0;
-      std::string stringSize;
+      int stringSize;
 
       //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
       short length = received_data[0] << 8 | received_data[1];

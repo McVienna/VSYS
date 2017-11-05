@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
 
-                delete recieved_Protocol;
+                delete received_Protocol;
                 
             } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
