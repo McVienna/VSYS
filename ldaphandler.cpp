@@ -7,6 +7,7 @@
 #include "ldaphandler.h"
 #include "protocols.h"
 
+
 Ldap::Ldap(){
 }
 
