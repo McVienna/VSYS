@@ -11,6 +11,7 @@
 
 #include <experimental/filesystem>
 #include <string>
+#include <sstream>
 
 #include <thread>
 #include <mutex>
@@ -22,8 +23,6 @@
 
 
 #define BUF 1024
-#define PORT 6554
-///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
 
@@ -38,8 +37,9 @@ int main(int argc, char **argv) {
     int server_socket_fd, client_socket_fd;
     socklen_t addrlen;
 
-    std::string message;
     int size;
+
+    unsigned short port = 0;
 
     int protocolType;
     Protocol *received_Protocol = NULL;
@@ -49,6 +49,25 @@ int main(int argc, char **argv) {
 
     Ldap ldaphandler;
 
+    if (argc != 3)
+    {
+        perror("Usage: ./MyServer <Mailpoolpath> <Port>");
+        return EXIT_FAILURE;
+    }
+
+    istringstream portCheck(argv[2]);
+    if (!portCheck >> port)
+    {
+        printf("Invalid Port!\n");
+        exit(EXIT_FAILURE);
+    }
+    port = atoi(argv[2]);
+    if (port < 1024 || port > 65535)
+    {
+        printf("Invalid Port Range!\n");
+        exit(EXIT_FAILURE);
+    }
+    cout << port << endl;
 
     //Create Socket
     struct sockaddr_in address, cliaddress;
@@ -57,7 +76,7 @@ int main(int argc, char **argv) {
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(port);
 
     if (bind(server_socket_fd, (struct sockaddr *) &address, sizeof(address)) != 0) {
         perror("bind error");
@@ -68,129 +87,127 @@ int main(int argc, char **argv) {
     addrlen = sizeof(struct sockaddr_in);
 
 //Main Program, runs until killed.
-    if (argc == 2) {
+    _path = argv[1];
 
-        _path = argv[1];
+    general_filehandler = new filehandler(_path);
 
-        general_filehandler = new filehandler(_path);
+    while (1) { //Wait for Connection
 
-        while (1) { //Wait for Connection
+        printf("Waiting for connections...\n");
+        client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
 
-            printf("Waiting for connections...\n");
-            client_socket_fd = accept(server_socket_fd, (struct sockaddr *) &cliaddress, &addrlen);
+        if (client_socket_fd > 0) {
+            printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
+            strcpy(buffer, "Welcome to TWMailer, Please enter your command:\n");
 
-            if (client_socket_fd > 0) {
-                printf("Client connected from %s:%d...\n", inet_ntoa(cliaddress.sin_addr), ntohs(cliaddress.sin_port));
-                message = "Welcome to TWMailer, Please enter your command:\n";
-                std::copy(message.begin(), message.end(), std::back_inserter(m_buffer));
-                
-                char * temp_buffer = buffer;
-                buffer = new char[m_buffer.size()];
-                delete temp_buffer;
-                vec_to_buf(m_buffer, buffer);
-
-                send(client_socket_fd, buffer, strlen(buffer), 0);
-                m_buffer.clear();
-
-            }
-            //Communication with Client
-            do {
-
-                LDAP *myldap;
-                 /* LDAP resource handle */
-
-                /* setup LDAP connection */
-                if (!ldaphandler.init(myldap))
-                {
-                    perror("ERR: ldap_init failed! ldap Server not reachableP");
-                    return EXIT_FAILURE;
-                }
-                printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
-
-
-                //Recieve message
-                m_buffer.clear();
-                size = recvall(client_socket_fd, m_buffer);
-                if (size > 0)
-                {
-                    char *temp = buffer;
-                    buffer     = new char[m_buffer.size()];
-                    delete temp;
-                    vec_to_buf(m_buffer, buffer);
-
-                    //get protocol type. Check for error (-1)
-                    protocolType = get_protocol(buffer);
-                    if(protocolType < 0)
-                    {
-                        perror("ERR: Protocol transmission went wrong!");
-                        return EXIT_FAILURE;
-                    }
-                    buildProtocol(received_Protocol, protocolType, buffer);
-                    
-                    switch(protocolType)
-                    {
-                        case 0: //SEND
-                        {
-                            Send_prot *send_prot = static_cast<Send_prot *>(received_Protocol);
-                            general_filehandler->handle_message(send_prot);
-                            delete send_prot;
-
-                            break;
-                        }
-
-                        case 1: //LIST
-                        {    
-                            break;
-                        }
-
-                        case 2: //READ
-                        {
-                            break;
-                        }
-
-                        case 3: //DEL
-                        {
-                            break;
-                        }   
-                        case 4: //LOGIN
-                        {
-                            Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
-                            int rc = ldaphandler.login(myldap, login_prot);
-                            delete login_prot;
-
-                            if (rc != LDAP_SUCCESS)
-                            {
-                                fprintf(stderr, "LDAP error: %s\n", ldap_err2string(rc));
-                                return EXIT_FAILURE;
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (size == 0)
-                {
-                    printf("Client closed remote socket\n");
-                    break;
-                }
-                else
-                {
-                    perror("recv error");
-                    return EXIT_FAILURE;
-                }
-
-                delete received_Protocol;
-
-            } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
-            close(client_socket_fd);
+            send(client_socket_fd, buffer, strlen(buffer), 0);
+            memset(buffer, 0, BUF-1);
         }
-        close(server_socket_fd);
-        return EXIT_SUCCESS;
-    } else if (argc < 2) {
-        perror("Usage: ./MyServer <Mailpoolpath> <Port>");
-        return EXIT_FAILURE;
-    } else {
-        return EXIT_FAILURE;
+        //Communication with Client
+        do {
+
+            LDAP *myldap; //Ldap resource handler
+            unsigned long clientAddress = cliaddress.sin_addr.s_addr;
+
+                //setup LDAP connection
+                if (!ldaphandler.init(myldap))
+            {
+                perror("ERR: ldap_init failed! ldap Server not reachableP");
+                return EXIT_FAILURE;
+            }
+            printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
+
+
+            //Recieve message
+            m_buffer.clear();
+            size = recvall(client_socket_fd, m_buffer);
+            if (size > 0)
+            {
+                //in case of send_prot a dynamically sized Buffer is allocated
+                char* receiveBuffer = new char[1];
+                char* temp = receiveBuffer;
+
+                receiveBuffer  = new char[m_buffer.size()];
+                delete temp;
+                vec_to_buf(m_buffer, receiveBuffer);
+
+                //get protocol type. Check for error (-1)
+                protocolType = get_protocol(receiveBuffer);
+                if(protocolType < 0)
+                {
+                    perror("ERR: Protocol transmission went wrong!");
+                    return EXIT_FAILURE;
+                }
+                cout << "Hier?" << endl;
+                buildProtocol(received_Protocol, protocolType, receiveBuffer);
+                delete receiveBuffer;
+                cout << "Hier?" << endl;
+
+                switch(protocolType)
+                {
+                    case 0: //SEND
+                    {
+                        Send_prot *send_prot = static_cast<Send_prot *>(received_Protocol);
+                        general_filehandler->handle_message(send_prot);
+                        delete send_prot;
+
+                        break;
+                    }
+
+                    case 1: //LIST
+                    {    
+                        break;
+                    }
+
+                    case 2: //READ
+                    {
+                        break;
+                    }
+
+                    case 3: //DEL
+                    {
+                        break;
+                    }   
+                    case 4: //LOGIN
+                    {
+                        Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
+                        int rc = ldaphandler.login(myldap, login_prot, clientAddress);
+                        delete login_prot;
+
+                        if(rc == -1)
+                        {
+                            strcpy(buffer, "Too many attempts...pls wait another");
+                            printf("%s\n", buffer);
+                        }
+
+                        else if (rc != LDAP_SUCCESS)
+                        {
+                            sprintf(buffer, "LDAP error: %s\n", ldap_err2string(rc));
+                            printf("%s\n", buffer);
+                        }
+                        //TODO: SEND MESSAGE TO CLIENT
+                        break;
+                    }
+                }
+            }
+            else if (size == 0)
+            {
+                printf("Client closed remote socket\n");
+                break;
+            }
+            else
+            {
+                perror("recv error");
+                return EXIT_FAILURE;
+            }
+
+            delete received_Protocol;
+
+        } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
+        close(client_socket_fd);
     }
+    close(server_socket_fd);
+    return EXIT_SUCCESS;
 }
 
 void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {

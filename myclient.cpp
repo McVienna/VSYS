@@ -10,13 +10,13 @@
 #include <cstring>
 
 #include <string>
+#include <sstream>
 
 #include "protocols.h"
 #include "socketutility.h"
 #include "userHandlerIO.h"
 
 #define BUF 1024
-#define PORT 6554
 
 using namespace std;
 
@@ -27,33 +27,41 @@ int main (int argc, char **argv) {
   char* buffer = new char[BUF]; 
   struct sockaddr_in address;
   int size;
+
+  unsigned short port = 0;
+
   unsigned int transmission_length;
   bool shallContinue = true;
 
-  //check buffer-allocation
-  if (buffer == NULL)
+  //Check Arguments
+  if( argc != 3)
   {
-    // error handling 
-    printf("Allocation of memory has failed. Probably not your fault :(");
-    exit(-1);
+    printf("Usage: %s ServerAdresse Port\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
-  //Check Arguments
-  if( argc < 2 )
-    {
-      printf("Usage: %s ServerAdresse\n", argv[0]);
-      exit(EXIT_FAILURE);
-    }
+  istringstream portCheck(argv[2]);
+  if (!portCheck >> port)
+  {
+    printf("Invalid Port!\n");
+    exit(EXIT_FAILURE);
+  }
+  port = atoi(argv[2]);
+  if (port < 1024 || port > 65535)
+  {
+    printf("Invalid Port Range!\n");
+    exit(EXIT_FAILURE);
+  }
 
-  if ((socket_fd = socket (AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-      perror("Socket error");
-      return EXIT_FAILURE;
-    }
+  if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+  {
+    perror("Socket error");
+    return EXIT_FAILURE;
+  }
   
   memset(&address, 0, sizeof(address));
   address.sin_family = AF_INET;
-  address.sin_port = htons (PORT);
+  address.sin_port = htons (port);
   inet_aton (argv[1], &address.sin_addr);
 
   if (connect (socket_fd, (struct sockaddr *) &address, sizeof (address)) == 0)
