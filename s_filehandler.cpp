@@ -84,7 +84,6 @@ void filehandler::write_data_to_file(std::ofstream msg_file, Send_prot * rec_msg
 {
     msg_file << rec_msg->return_sender();
     msg_file.close();
-
 }
 
 

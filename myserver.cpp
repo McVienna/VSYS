@@ -33,6 +33,7 @@ namespace fs = std::experimental::filesystem::v1;
 using namespace std;
 
 void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data);
+int ldapLogin(LDAP *myldap, Protocol *login_protocol);
 
 int main(int argc, char **argv) {
 
@@ -45,21 +46,10 @@ int main(int argc, char **argv) {
     int size;
 
     int protocolType;
-    Protocol *recieved_Protocol = NULL;
+    Protocol *received_Protocol = NULL;
 
     std::string _path;
     filehandler *general_filehandler = NULL;
-
-    LDAP *myldap; /* LDAP resource handle */
-
-    /* setup LDAP connection */
-    if ((myldap = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
-    {
-        perror("ldap_init failed");
-        return EXIT_FAILURE;
-    }
-
-    printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
 
     //Create Socket
     struct sockaddr_in address, cliaddress;
@@ -80,7 +70,6 @@ int main(int argc, char **argv) {
 
 //Main Program, runs until killed.
     if (argc == 2) {
-
 
         _path = argv[1];
 
@@ -107,6 +96,18 @@ int main(int argc, char **argv) {
             }
             //Communication with Client
             do {
+
+                LDAP *myldap; /* LDAP resource handle */
+
+                /* setup LDAP connection */
+                if ((myldap = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
+                {
+                    perror("ERR: ldap_init failed! ldap Server not reachableP");
+                    return EXIT_FAILURE;
+                }
+
+                printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
+
                 //Recieve message
                 m_buffer.clear();
                 size = recvall(client_socket_fd, m_buffer);
@@ -124,12 +125,12 @@ int main(int argc, char **argv) {
                         perror("ERR: Protocol transmission went wrong!");
                         return EXIT_FAILURE;
                     }
-                    buildProtocol(recieved_Protocol, protocolType, buffer);
+                    buildProtocol(received_Protocol, protocolType, buffer);
                     
                     switch(protocolType)
                     {
                         case 0: //SEND
-                            general_filehandler->create_usr_dir(recieved_Protocol);
+                            general_filehandler->handle_message(received_Protocol);
                             break;
 
                         case 1: //LIST
@@ -145,12 +146,14 @@ int main(int argc, char **argv) {
                             break;
 
                         case 4: //LOGIN
-                            ldapLogin()
+                            int rc = ldapLogin(myldap, received_Protocol);
+                            if (rc != LDAP_SUCCESS)
+                            {
+                                fprintf(stderr, "LDAP error: %s\n", ldap_err2string(rc));
+                                return EXIT_FAILURE;
+                            }
                             break;
-                            
                     }
-                    
-
                 }
                 else if (size == 0)
                 {
@@ -163,7 +166,7 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
 
-                delete instanciate_massage;
+                delete received_Protocol;
             } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
         }
@@ -178,7 +181,7 @@ int main(int argc, char **argv) {
 }
 
 void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
-          /*
+      /*
       -1: error
       0: Send_prot
       1: List_prot
@@ -212,4 +215,19 @@ void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
             emptyProtocol = new Login_prot(data);
             break;
       }
+}
+
+int ldapLogin(LDAP* myldap, Protocol* received_protocol)
+{
+    Login_prot* login_prot = static_cast<Login_prot *>(received_protocol);
+    /* anonymous bind */
+    int rc = ldap_simple_bind_s(myldap, login_prot->get_username().c_str(), login_prot->get_password().c_str());
+
+    if (rc != LDAP_SUCCESS)
+    {
+        printf("Client %s logged in successfully", login_prot->get_username().c_str());
+    }
+
+    delete login_prot;
+    return rc;
 }

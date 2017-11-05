@@ -46,7 +46,7 @@ void Protocol::set_with_limit(std::string name, std::string &toSet, unsigned int
             cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
         }
         cout << name << "(" << limit << "): ";
-        cin  >> toSet;
+        getline(std::cin, toSet);
 
         loop++;
     }
@@ -68,7 +68,11 @@ void Protocol::deserialize_string(char* serialized_Array, int setPosition, std::
 
     for(unsigned int i = 0; i < (unsigned int) maxStringLength; i++)
     {
-        if(serialized_Array[setPosition+i] != 0) intoString[i] = serialized_Array[setPosition+i];
+        if(serialized_Array[setPosition+i] != 0)
+        {
+            intoString[i] = serialized_Array[setPosition+i];
+            cout << serialized_Array[setPosition + i] << endl;
+        }
         else                  break;
     }
 }
@@ -487,4 +491,14 @@ void Delete_prot::serialize(char* serialized_data) {
       short test = serialized_data[0] << 8 | serialized_data[1];
       test = ntohs(test);
       */
+  }
+
+  std::string Login_prot::get_username ()
+  {
+    return this->username;
+  }
+
+  std::string Login_prot::get_password ()
+  {
+    return this->password;
   }

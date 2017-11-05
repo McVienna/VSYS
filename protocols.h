@@ -130,6 +130,9 @@ public:
   void serialize(char *serialized_data); //serializes all data into char Array.
   int get_buffersize();                  //returns size needed for buffer to contain all data.
 
+  std::string get_username();
+  std::string get_password();
+
 private:
   std::string username;
   std::string password;
