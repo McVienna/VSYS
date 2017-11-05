@@ -46,7 +46,7 @@ void Protocol::set_with_limit(std::string name, std::string &toSet, unsigned int
             cout << "Invalid length of argument! Watch the limit in parantheses!" << endl << endl;
         }
         cout << name << "(" << limit << "): ";
-        cin  >> toSet;
+        getline(std::cin, toSet);
 
         loop++;
     }
@@ -64,13 +64,23 @@ void Protocol::serialize_string(char* serialized_Array, int setPosition, std::st
 }
 
 //Given an Array, and a starting Indet('setPosition'), derseialize into String, for max of string Length
-void Protocol::deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength) {
+int Protocol::deserialize_string(char* serialized_Array, int setPosition, std::string &intoString, int maxStringLength) {
 
-    for(unsigned int i = 0; i < (unsigned int) maxStringLength; i++)
+    unsigned int i = 0;
+
+    for(i = 0; i < (unsigned int) maxStringLength; i++)
     {
-        if(serialized_Array[setPosition+i] != 0) intoString[i] = serialized_Array[setPosition+i];
-        else                  break;
+        if(serialized_Array[setPosition+i] != 0)
+        {
+            intoString[i] = serialized_Array[setPosition+i];
+        }
+        else
+        {
+            return i;
+        }
     }
+
+    return i;
 }
 
 
@@ -93,6 +103,7 @@ Send_prot::Send_prot(char* received_data) {
 
     int arrayPos = 0;
     int messageSize = 0;
+    int stringSize;
 
     //Short is 2 Bytes in size, so needs to be parsed out of 2 char values. Gets stored in HEX by Sender.
     short length = received_data[0] << 8 | received_data[1];
@@ -106,16 +117,26 @@ Send_prot::Send_prot(char* received_data) {
     this->subject.resize(SUBJECT_SIZE);
     this->message.resize(messageSize);
 
-    deserialize_string(received_data, arrayPos, this->sender, SENDER_SIZE);
+    stringSize = deserialize_string(received_data, arrayPos, this->sender, SENDER_SIZE);
     arrayPos += SENDER_SIZE;
+    this->sender.resize(stringSize);
+    std::cout << this->sender << std::endl;
 
-    deserialize_string(received_data, arrayPos, this->receiver, RECEIVER_SIZE);
+
+    stringSize = deserialize_string(received_data, arrayPos, this->receiver, RECEIVER_SIZE);
     arrayPos += RECEIVER_SIZE;
+    this->receiver.resize(stringSize);
+    std::cout << this->receiver << std::endl;
 
-    deserialize_string(received_data, arrayPos, this->subject, SUBJECT_SIZE);
+    stringSize = deserialize_string(received_data, arrayPos, this->subject, SUBJECT_SIZE);
     arrayPos += SUBJECT_SIZE;
-    
-    deserialize_string(received_data, arrayPos, this->message, messageSize);
+    this->subject.resize(stringSize);
+    std::cout << this->subject << std::endl;
+
+
+    stringSize = deserialize_string(received_data, arrayPos, this->message, messageSize);
+    this->message.resize(stringSize);
+    std::cout << this->message << std::endl;
     
 }
 
@@ -169,6 +190,21 @@ std::string Send_prot::return_sender() {
     return this->sender;
 }
 
+std::string Send_prot::return_receiver()
+{
+    return this->receiver;
+}
+
+std::string Send_prot::return_subject()
+{
+    return this->subject;
+}
+
+std::string Send_prot::return_message()
+{
+    return this->message;
+}
+
 
 
 //function to read Message typed by user into string.
@@ -184,7 +220,7 @@ void Send_prot::typeMessage(std::string &message) {
     while(buffer != ".")
     {
         buffer = "";
-        cin >> buffer;
+        getline(std::cin, buffer);
         message.append(buffer);
         message.push_back('\n');
     }

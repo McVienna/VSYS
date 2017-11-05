@@ -25,7 +25,7 @@
 #define LDAP_PORT 389
 
 #define BUF 1024
-#define PORT 6552
+#define PORT 6554
 ///Port hardcoded for comfort of testing ^^
 
 namespace fs = std::experimental::filesystem::v1;
@@ -53,11 +53,7 @@ int main(int argc, char **argv) {
     LDAP *myldap; /* LDAP resource handle */
 
     /* setup LDAP connection */
-    if ((myldap = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
-    {
-        perror("ldap_init failed");
-        return EXIT_FAILURE;
-    }
+
 
     printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
 
@@ -129,7 +125,7 @@ int main(int argc, char **argv) {
                     switch(protocolType)
                     {
                         case 0: //SEND
-                            general_filehandler->create_usr_dir(recieved_Protocol);
+                            general_filehandler->handle_message(recieved_Protocol);
                             break;
 
                         case 1: //LIST
@@ -145,7 +141,7 @@ int main(int argc, char **argv) {
                             break;
 
                         case 4: //LOGIN
-                            ldapLogin()
+
                             break;
                             
                     }
@@ -163,7 +159,8 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
 
-                delete instanciate_massage;
+                delete recieved_Protocol;
+
             } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
         }
