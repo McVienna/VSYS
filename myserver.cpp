@@ -15,14 +15,10 @@
 #include <thread>
 #include <mutex>
 
-#include <ldap.h>
-
 #include "socketutility.h"
 #include "protocols.h"
 #include "s_filehandler.h"
-
-#define LDAP_HOST "ldap.technikum-wien.at"
-#define LDAP_PORT 389
+#include "ldaphandler.h"
 
 #define BUF 1024
 #define PORT 6554
@@ -33,7 +29,6 @@ namespace fs = std::experimental::filesystem::v1;
 using namespace std;
 
 void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data);
-int ldapLogin(LDAP *myldap, Protocol *login_protocol);
 
 int main(int argc, char **argv) {
 
@@ -50,6 +45,8 @@ int main(int argc, char **argv) {
 
     std::string _path;
     filehandler *general_filehandler = NULL;
+
+    Ldap ldaphandler;
 
 
     //Create Socket
@@ -98,15 +95,15 @@ int main(int argc, char **argv) {
             //Communication with Client
             do {
 
-                LDAP *myldap; /* LDAP resource handle */
+                LDAP *myldap;
+                 /* LDAP resource handle */
 
                 /* setup LDAP connection */
-                if ((myldap = ldap_init(LDAP_HOST, LDAP_PORT)) == NULL)
+                if (!ldaphandler.init(myldap))
                 {
                     perror("ERR: ldap_init failed! ldap Server not reachableP");
                     return EXIT_FAILURE;
                 }
-
                 printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
 
 
@@ -132,29 +129,41 @@ int main(int argc, char **argv) {
                     switch(protocolType)
                     {
                         case 0: //SEND
-                            general_filehandler->handle_message(received_Protocol);
+                        {
+                            Send_prot *send_prot = static_cast<Send_prot *>(received_Protocol);
+                            general_filehandler->handle_message(send_prot);
+                            delete send_prot;
+
                             break;
+                        }
 
                         case 1: //LIST
-                            
+                        {    
                             break;
+                        }
 
                         case 2: //READ
-                            
+                        {
                             break;
+                        }
 
                         case 3: //DEL
-                            
+                        {
                             break;
-
+                        }   
                         case 4: //LOGIN
-                            int rc = ldapLogin(myldap, received_Protocol);
+                        {
+                            Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
+                            int rc = ldaphandler.login(myldap, login_prot);
+                            delete login_prot;
+
                             if (rc != LDAP_SUCCESS)
                             {
                                 fprintf(stderr, "LDAP error: %s\n", ldap_err2string(rc));
                                 return EXIT_FAILURE;
                             }
                             break;
+                        }
                     }
                 }
                 else if (size == 0)
@@ -169,7 +178,7 @@ int main(int argc, char **argv) {
                 }
 
                 delete received_Protocol;
-                
+
             } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
             close(client_socket_fd);
         }
@@ -218,19 +227,4 @@ void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
             emptyProtocol = new Login_prot(data);
             break;
       }
-}
-
-int ldapLogin(LDAP* myldap, Protocol* received_protocol)
-{
-    Login_prot* login_prot = static_cast<Login_prot *>(received_protocol);
-    /* anonymous bind */
-    int rc = ldap_simple_bind_s(myldap, login_prot->get_username().c_str(), login_prot->get_password().c_str());
-
-    if (rc != LDAP_SUCCESS)
-    {
-        printf("Client %s logged in successfully", login_prot->get_username().c_str());
-    }
-
-    delete login_prot;
-    return rc;
 }

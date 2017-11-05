@@ -32,7 +32,7 @@ filehandler::filehandler(std::string m_path){
 
 }
 
-void filehandler::handle_message(Protocol* &rec_prot)
+void filehandler::handle_message(Send_prot * &insta_message)
 {
     std::string user_path;
     std::string time;
@@ -43,8 +43,6 @@ void filehandler::handle_message(Protocol* &rec_prot)
     _cast << result;
 
     time = _cast.str();
-
-    Send_prot * insta_message = static_cast<Send_prot*>(rec_prot);
 
     user_path = this->path + "/" + insta_message->return_sender();
 

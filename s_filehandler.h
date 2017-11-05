@@ -11,11 +11,11 @@ private:
 
 public:
     filehandler(std::string);
-    void handle_message(Protocol*&);
+    void handle_message(Send_prot*&);
     ~filehandler();
     std::string return_path();
 
-    void write_data_to_file(std::ofstream , Send_prot *);
+    void write_data_to_file(std::ofstream, Send_prot *);
 };
 
 
