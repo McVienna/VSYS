@@ -494,6 +494,7 @@ void Delete_prot::serialize(char* serialized_data) {
 
       stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
       this->username.resize(stringSize);
+      arrayPos += USERNAME_SIZE;
 
       stringSize = deserialize_string(received_data, arrayPos, this->password, PASSWORD_SIZE);
       this->password.resize(stringSize);

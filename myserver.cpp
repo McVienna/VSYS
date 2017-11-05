@@ -103,21 +103,20 @@ int main(int argc, char **argv) {
             send(client_socket_fd, buffer, strlen(buffer), 0);
             memset(buffer, 0, BUF-1);
         }
+        //Set up Ldap 
+        LDAP *myldap;
+        unsigned long clientAddress = cliaddress.sin_addr.s_addr;
+
+            //setup LDAP connection
+            if (!ldaphandler.init(myldap))
+        {
+            perror("ERR: ldap_init failed! ldap Server not reachable\n");
+            return EXIT_FAILURE;
+        }
+        printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
+
         //Communication with Client
         do {
-
-            LDAP *myldap; //Ldap resource handler
-            unsigned long clientAddress = cliaddress.sin_addr.s_addr;
-
-                //setup LDAP connection
-                if (!ldaphandler.init(myldap))
-            {
-                perror("ERR: ldap_init failed! ldap Server not reachableP");
-                return EXIT_FAILURE;
-            }
-            printf("connected to LDAP server %s on port %d\n", LDAP_HOST, LDAP_PORT);
-
-
             //Recieve message
             m_buffer.clear();
             size = recvall(client_socket_fd, m_buffer);
@@ -138,10 +137,8 @@ int main(int argc, char **argv) {
                     perror("ERR: Protocol transmission went wrong!");
                     return EXIT_FAILURE;
                 }
-                cout << "Hier?" << endl;
                 buildProtocol(received_Protocol, protocolType, receiveBuffer);
                 delete receiveBuffer;
-                cout << "Hier?" << endl;
 
                 switch(protocolType)
                 {
@@ -173,13 +170,11 @@ int main(int argc, char **argv) {
                         Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
                         int rc = ldaphandler.login(myldap, login_prot, clientAddress);
                         delete login_prot;
-
                         if(rc == -1)
                         {
                             strcpy(buffer, "Too many attempts...pls wait another");
                             printf("%s\n", buffer);
                         }
-
                         else if (rc != LDAP_SUCCESS)
                         {
                             sprintf(buffer, "LDAP error: %s\n", ldap_err2string(rc));
@@ -200,8 +195,6 @@ int main(int argc, char **argv) {
                 perror("recv error");
                 return EXIT_FAILURE;
             }
-
-            delete received_Protocol;
 
         } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
         close(client_socket_fd);

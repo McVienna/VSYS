@@ -23,7 +23,7 @@ int Ldap::init(LDAP* &myldap)
 
 
 //Try to log into LDAP
-int Ldap::login(LDAP *myldap, Login_prot* &login_protocol, unsigned long clientAddress)
+int Ldap::login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress)
 {
   //build username
   char username[50];
@@ -50,29 +50,29 @@ int Ldap::login(LDAP *myldap, Login_prot* &login_protocol, unsigned long clientA
     return -1;
   }
 
-    if (rc == LDAP_SUCCESS)
+  if (rc == LDAP_SUCCESS)
+  {
+    printf("Client %s logged in successfully\n", login_protocol->get_username().c_str());
+    if (it != this->clientLoginAttempts.end())
     {
-      printf("Client %s logged in successfully", login_protocol->get_username().c_str());
-      if (it != this->clientLoginAttempts.end())
+      this->clientLoginAttempts.erase(it);
+    }
+  }
+  else
+  {
+    if (it != clientLoginAttempts.end())
+    {
+      this->clientLoginAttempts[clientAddress] += 1;
+      if (this->clientLoginAttempts[clientAddress] >= 3)
       {
-        this->clientLoginAttempts.erase(it);
+        lockedClients[clientAddress] = time(NULL) + LOGLOCK_TIME;
       }
     }
     else
     {
-      if (it != clientLoginAttempts.end())
-      {
-        this->clientLoginAttempts[clientAddress] += 1;
-        if (this->clientLoginAttempts[clientAddress] >= 3)
-        {
-          lockedClients[clientAddress] = time(NULL) + LOGLOCK_TIME;
-        }
-      }
-      else
-      {
-        this->clientLoginAttempts[clientAddress] = 1;
-      }
+      this->clientLoginAttempts[clientAddress] = 1;
     }
+  }
 
   return rc;
 }
