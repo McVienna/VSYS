@@ -30,6 +30,8 @@ int main (int argc, char **argv) {
 
   std::vector<char> vec_receive_buffer;
 
+  std::string ldapUsername;
+
   unsigned short port = 0;
 
   unsigned int transmission_length;
@@ -106,25 +108,24 @@ int main (int argc, char **argv) {
         case 0:
           cout << "SEND A NEW MESSAGE" << endl;
           cout << "Please enter required data." << endl << endl;
-          protocol = new Send_prot();
+          protocol = new Send_prot(ldapUsername);
           break;
 
         case 1:
           cout << "LIST ALL MESSAGES" << endl;
-          cout << "Please enter required data." << endl << endl;
-          protocol = new List_prot();
+          protocol = new List_prot(ldapUsername);
           break;
 
         case 2:
           cout << "READ A MESSAGE" << endl;
           cout << "Please enter required data." << endl << endl;
-          protocol = new Read_prot();
+          protocol = new Read_prot(ldapUsername);
           break;
 
         case 3:
           cout << "DELETE A MESSAGE" << endl;
           cout << "Please enter required data." << endl << endl;
-          protocol = new Delete_prot();
+          protocol = new Delete_prot(ldapUsername);
           break;
 
         case 4:

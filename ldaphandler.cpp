@@ -24,43 +24,48 @@ int Ldap::init(LDAP* &myldap)
 
 
 //Try to log into LDAP
-int Ldap::login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress, int &locktime)
+int Ldap::login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress, int &locktime, bool &loggedIn, std::string &username)
 {
+  if(loggedIn) return -2;
+  std::string sentUsername = login_protocol->get_username();
+
   //Handle multiple access attempts
   auto it = this->clientLoginAttempts.find(clientAddress);
   time_t timeNow = time(NULL);
   
   //build username
-  char username[50];
-  strcat(username, (LDAP_USERPAD_L));
-  strcat(username, login_protocol->get_username().c_str());
-  strcat(username, (LDAP_USERPAD_R));
-  
-  //try to log in
-  int rc = ldap_simple_bind_s(myldap, username, login_protocol->get_password().c_str());
+  char ldapLogin[50] = {};
+  strcat(ldapLogin, (LDAP_USERPAD_L));
+  strcat(ldapLogin, sentUsername.c_str());
+  strcat(ldapLogin, (LDAP_USERPAD_R));
 
+  //try to log in
+  int rc = ldap_simple_bind_s(myldap, ldapLogin, login_protocol->get_password().c_str());
 
   if (it != this->clientLoginAttempts.end() && this->clientLoginAttempts[clientAddress] >= 3)
   {
-    if (difftime(this->lockedClients[clientAddress], timeNow) < 0)
+    locktime = difftime(this->lockedClients[clientAddress], timeNow);
+
+    if (locktime < 0)
     {
       this->clientLoginAttempts[clientAddress] = 0;
       this->lockedClients.erase (clientAddress);
     }
     else
     {
-      locktime = difftime(this->lockedClients[clientAddress], timeNow);
       return -1;
     }
   }
 
   if (rc == LDAP_SUCCESS)
   {
-    printf("Client %s logged in successfully\n", login_protocol->get_username().c_str());
+    printf("Client %s logged in successfully\n", sentUsername.c_str());
     if (it != this->clientLoginAttempts.end())
     {
       this->clientLoginAttempts.erase(it);
     }
+    username = sentUsername;
+    loggedIn = true;
   }
   else
   {

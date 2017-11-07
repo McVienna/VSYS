@@ -44,7 +44,7 @@ class Protocol {
 //Protocol for sending a new email
 class Send_prot : public Protocol {
   public:
-    Send_prot();
+    Send_prot(std::string ldapUsernam); //ldapUsername can be set in Login_prot
     Send_prot(char* received_data); //used to build Object after recieving Data
     ~Send_prot();
 
@@ -73,7 +73,7 @@ class Send_prot : public Protocol {
 //Protocol for listing all messages of a user stored on the server.
 class List_prot : public Protocol {
   public:
-    List_prot();
+    List_prot(std::string ldapUsernam); //ldapUsername can be set in Login_prot
     List_prot(char* received_data); //used to build Object after recieving Data
     ~List_prot();
 
@@ -91,7 +91,7 @@ class List_prot : public Protocol {
 //Protocol for reading a message specified by the user.
 class Read_prot : public Protocol {
   public:
-    Read_prot();
+    Read_prot(std::string ldapUsernam); //ldapUsername can be set in Login_prot
     Read_prot(char* received_data); //used to build Object after recieving Data
     ~Read_prot();
 
@@ -108,7 +108,7 @@ class Read_prot : public Protocol {
 //Protocol for deleting a message specified by the user.
 class Delete_prot  : public Protocol{
   public:
-    Delete_prot();
+    Delete_prot(std::string ldapUsernam); //ldapUsername can be set in Login_prot
     Delete_prot(char* received_data); //used to build Object after recieving Data
     ~Delete_prot();
 

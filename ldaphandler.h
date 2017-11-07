@@ -7,7 +7,7 @@
 #define LDAP_USERPAD_R ",ou=People,dc=technikum-wien,dc=at"
 
 //login lock in seconds. Default: 30mins
-#define LOGLOCK_TIME 1800
+#define LOGLOCK_TIME 10
 
 #include <map>
 #include <ctime>
@@ -19,7 +19,7 @@ class Ldap {
   public:
     Ldap();
     ~Ldap();
-    int login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress, int &locktime); //checks, if User is in Database
+    int login(LDAP *&myldap, Login_prot *&login_protocol, unsigned long clientAddress, int &locktime, bool &loggedIn, std::string &username); //Handles User login
     int init(LDAP* &myldap); //returns > 0 on success, otherwise return -1
 
     std::map<unsigned long, time_t> lockedClients;
@@ -27,5 +27,4 @@ class Ldap {
   private:
     std::map<unsigned long, int> clientLoginAttempts;
 };
-
 #endif //LDAPHANDLER_H INCLUDED

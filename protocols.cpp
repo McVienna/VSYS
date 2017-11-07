@@ -91,9 +91,10 @@ int Protocol::deserialize_string(char* serialized_Array, int setPosition, std::s
 
 
 /************************SEND PROTOCOL************************/
-Send_prot::Send_prot() {
+Send_prot::Send_prot(std::string ldapUsername)
+{
     //fill in strings of the object
-    set_with_limit("Sender", this->sender, SENDER_SIZE);
+    this->sender = ldapUsername;
     set_with_limit("Receiver", this->receiver, RECEIVER_SIZE);
     set_with_limit("Subject", this->subject, SUBJECT_SIZE);
     typeMessage(this->message);
@@ -230,9 +231,9 @@ void Send_prot::typeMessage(std::string &message) {
 
 
 /************************LIST PROTOCOL************************/
-List_prot::List_prot() {
-    //fill in strings of the object
-    set_with_limit("Sender", this->username, USERNAME_SIZE);
+List_prot::List_prot(std::string ldapUsername)
+{
+    this->username = ldapUsername;
 }
 
 //Build Object with given serialized data. Probably only used by Server, receiving the data from client.
@@ -288,12 +289,12 @@ void List_prot::serialize(char* serialized_data) {
       */
   }
 /************************READ PROTOCOL************************/
-Read_prot::Read_prot() {
+Read_prot::Read_prot(std::string ldapUsername) {
     std::string input;
     bool isNumber;
 
     //fill in strings of the object
-    set_with_limit("Sender", this->username, USERNAME_SIZE);
+    this->username = ldapUsername;
     //get message_nr from user
     do
     {
@@ -379,12 +380,11 @@ void Read_prot::serialize(char* serialized_data) {
   }
 
 /************************DELETE PROTOCOL************************/
-Delete_prot::Delete_prot() {
+Delete_prot::Delete_prot(std::string ldapUsername) {
     std::string input;
     bool isNumber;
 
-    //fill in strings of the object
-    set_with_limit("Sender", this->username, USERNAME_SIZE);
+    this->username = ldapUsername;
     //get message_nr from user
     do
     {

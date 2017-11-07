@@ -108,11 +108,12 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
             memset(buffer, 0, BUF-1);
         }
 
-
-        //Set up Ldap 
+        //Set up Ldap
         LDAP *myldap;
-        unsigned long clientAddress = cliaddress.sin_addr.s_addr;
         int locktime;
+        unsigned int clientAddress = cliaddress.sin_addr.s_addr;
+        bool loggedIn = false;
+        std::string username;
 
         //setup LDAP connection
         if (!ldaphandler.init(myldap))
@@ -147,6 +148,12 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
                 buildProtocol(received_Protocol, protocolType, receiveBuffer);
                 delete receiveBuffer;
 
+                if(!loggedIn && protocolType != 4)
+                {
+                    protocolType = -1;
+                    strcpy (buffer, "ERR: Not logged in!\n");
+                }
+
                 switch(protocolType)
                 {
                     case 0: //SEND
@@ -180,7 +187,7 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
                     case 4: //LOGIN
                     {
                         Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
-                        int rc = ldaphandler.login(myldap, login_prot, clientAddress, locktime);
+                        int rc = ldaphandler.login(myldap, login_prot, clientAddress, locktime, loggedIn, username);
                         delete login_prot;
 
                         if (rc == LDAP_SUCCESS)
@@ -191,12 +198,20 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
                         {
                             sprintf(buffer, "Too many attempts...pls wait another %d Minutes", (locktime / 60));
                         }
+                        else if (rc == -2)
+                        {
+                            sprintf(buffer, "You are already logged in %s", username.c_str());
+                        }
                         else if (rc != LDAP_SUCCESS)
                         {
                             sprintf(buffer, "ERR: %s\n", ldap_err2string(rc));
                         }
 
                         //TODO: SEND MESSAGE TO CLIENT
+                        break;
+                    }
+                    default:
+                    {
                         break;
                     }
                 }
@@ -226,7 +241,7 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
             }
             memset(buffer, 0, BUF-1);
 
-        } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
+        } while (1);
         close(client_socket_fd);
     }
     close(server_socket_fd);
