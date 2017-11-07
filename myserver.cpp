@@ -183,7 +183,15 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
 
                     case 1: //LIST
                     {
-                        strcpy(buffer, "My LIST answere");
+
+                        List_prot * to_list = static_cast<List_prot *>(received_Protocol);
+
+                        std::string _list = general_filehandler->list_mails(to_list);
+
+                        const char * list_mails = _list.c_str();
+
+                        strcpy(buffer, list_mails);
+
                         break;
                     }
 
@@ -195,7 +203,9 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
 
                         _read = general_filehandler->read_msg(read_msg);
 
-                        std::cout << _read << std::endl;
+                        const char * send_read = _read.c_str();
+
+                        strcpy(buffer, send_read);
 
                         break;
                     }

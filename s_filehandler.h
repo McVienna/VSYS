@@ -15,6 +15,7 @@ public:
     bool handle_message(Send_prot*&);
     int delete_message(Delete_prot*&);
     std::string read_msg(Read_prot*&);
+    std::string list_mails(List_prot *&);
 
     ~filehandler();
     std::string return_path();

@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <stdio.h>
+#include<sys/types.h>
+#include<dirent.h>
 #include <ctime>
 #include <fstream>
 #include "s_filehandler.h"
@@ -128,12 +131,52 @@ std::string filehandler::read_msg(Read_prot* &to_read)
 {
     std::string path = this->path + "/" + to_read->return_username() + "/" + to_read->return_message_nr() + ".txt";
     std::string msg;
+    std::string _temp;
+    std::string topic;
 
     std::ifstream input_file(path);
 
-    while(getline(input_file,msg,'#'))
+    if(input_file.is_open())
     {
-        std::cout << msg << std::endl;
+        for(int i = 0; i < 3; i++)
+        {
+
+            switch(i)
+            {
+                case 0:
+                {
+                    topic ="\nsender --> \n";
+                    getline(input_file, _temp, '#');
+                    _temp = topic + _temp + "\n\n";
+                    break;
+                }
+                case 1:
+                {
+                    topic = "subject --> ";
+                    getline(input_file, _temp, '#');
+                    _temp = topic + _temp + "\n\n";
+                    break;
+                }
+                case 2:
+                {
+                    topic = "message -->";
+                    getline(input_file, _temp, '#');
+                    _temp = topic + _temp + "\n\n";
+                    break;
+                }
+            }
+
+            for(int i = 0; i < _temp.size(); i++)
+            {
+
+                    msg.push_back(_temp[i]);
+
+            }
+        }
+    }
+    else
+    {
+      return "ERR";
     }
 
     input_file.close();
@@ -143,4 +186,89 @@ std::string filehandler::read_msg(Read_prot* &to_read)
 
 }
 
+//Function gets number of files with ".txt" extension out of given directory
 
+
+std::string filehandler::list_mails(List_prot *&to_list) {
+
+    std::string directory = this->path + "/" + to_list->return_usr();
+    std::string actual_file;
+    std::string my_list;
+    std::string _temp;
+
+
+    std::cout << directory << std::endl;
+
+    std::string ext = ".txt";
+
+    fs::path Path(directory);
+
+    int Nb_ext = 0;
+    fs::directory_iterator end_iter; // Default constructor for an iterator is the end iterator
+
+    for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
+
+        if (iter->path().extension() == ext)
+        {
+            actual_file = iter->path().filename();
+
+            std::string _file = this->path + "/" + to_list->return_usr() + "/" + actual_file;
+
+            std::ifstream in_file(_file);
+
+            if(in_file.is_open())
+            {
+                if(in_file.is_open())
+                {
+
+                    my_list.push_back('-');
+
+                    for(int i = 0; i < _file.size(); i++)
+                    {
+                        my_list.push_back(_file[i]);
+                    }
+
+                    my_list.push_back('\n');
+
+                    for(int i = 0; i < 2; i++)
+                    {
+
+
+                        switch(i) {
+                            case 0: {
+                                getline(in_file, _temp, '#');
+                                _temp = _temp + " -->";
+
+                                std::cout << _temp << std::endl;
+                                break;
+                            }
+                            case 1: {
+                                getline(in_file, _temp, '#');
+                                std::cout << _temp << std::endl;
+                                break;
+                            }
+                        }
+
+                        for(int i = 0; i < _temp.size(); i++)
+                        {
+
+                            if(_temp[i] != '\n')
+                            {
+                                my_list.push_back(_temp[i]);
+                            }
+
+                        }
+
+                        my_list.push_back('\n');
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    std::cout << my_list;
+
+    return my_list;
+}

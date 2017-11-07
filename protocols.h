@@ -79,6 +79,7 @@ class List_prot : public Protocol {
 
     void serialize(char* serialized_data); //serializes all data into char Array.
     int get_buffersize(); //returns size needed for buffer to contain all data.
+    std::string return_usr();
 
 
   private:

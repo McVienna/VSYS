@@ -292,6 +292,12 @@ void List_prot::serialize(char* serialized_data) {
       test = ntohs(test);
       */
   }
+
+std::string List_prot::return_usr()
+{
+    return this->username;
+}
+
 /************************READ PROTOCOL************************/
 Read_prot::Read_prot(std::string ldapUsername) {
     std::string input;
@@ -304,10 +310,7 @@ Read_prot::Read_prot(std::string ldapUsername) {
     {
         isNumber = true;
         cout << "Message Number: ";
-        cin  >> input;
-    
-        cin.clear();
-        cin.ignore();
+        getline(std::cin, input);
 
         for (auto i = input.begin(); i != input.end(); i++)
         {
@@ -342,6 +345,7 @@ Read_prot::Read_prot(char* received_data) {
     
     stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
     this->username.resize(stringSize);
+    arrayPos += USERNAME_SIZE;
 
     stringSize = deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
     this->message_nr.resize(stringSize);
