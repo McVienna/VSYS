@@ -479,11 +479,12 @@ std::string Delete_prot::return_usr()
 }
 
   /************************LOGIN PROTOCOL************************/
-  Login_prot::Login_prot()
+  Login_prot::Login_prot(std::string &ldapUsername)
   {
       //fill in strings of the object
       set_with_limit("Username", this->username, USERNAME_SIZE);
       set_with_limit("Password", this->password, PASSWORD_SIZE);
+      ldapUsername = this->username;
   }
 
   //Build Object with given serialized data. Probably only used by Server, receiving the data from client.

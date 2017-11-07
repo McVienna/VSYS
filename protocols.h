@@ -128,7 +128,7 @@ class Delete_prot  : public Protocol{
 class Login_prot : public Protocol
 {
 public:
-  Login_prot();
+  Login_prot(std::string &ldapUsername);
   Login_prot(char *received_data); //used to build Object after recieving Data
   ~Login_prot();
 

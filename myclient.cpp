@@ -132,7 +132,7 @@ int main (int argc, char **argv) {
           cout << "LOGIN!" << endl;
           cout << "Please enter required data." << endl
                << endl;
-          protocol = new Login_prot();
+          protocol = new Login_prot(&ldapUsername);
           break;
 
         case -1:
