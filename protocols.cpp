@@ -223,9 +223,13 @@ void Send_prot::typeMessage(std::string &message) {
         message.push_back('\n');
     }
 
-    for(int i = 0; i < 3; i++) //remove message overhead, produced by end definition of entering a message.
+    for(int i = 0; i < 2; i++) //remove message overhead, produced by end definition of entering a message.
     {
         message.pop_back();
+    }
+    if(message.empty())
+    {
+        message = "***EMPTY MESSAGE***";
     }
 }
 

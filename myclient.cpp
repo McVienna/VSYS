@@ -33,6 +33,7 @@ int main (int argc, char **argv) {
   std::string ldapUsername;
 
   unsigned short port = 0;
+  int portRangeCheck = 0;
 
   unsigned int transmission_length;
   bool shallContinue = true;
@@ -50,12 +51,14 @@ int main (int argc, char **argv) {
     printf("Invalid Port!\n");
     exit(EXIT_FAILURE);
   }
-  port = atoi(argv[2]);
-  if (port < 1024 || port > 65535)
+  portRangeCheck = atoi(argv[2]);
+  if ((portRangeCheck < 1024) || (portRangeCheck > 65535))
   {
     printf("Invalid Port Range!\n");
     exit(EXIT_FAILURE);
   }
+
+  port = atoi(argv[2]);
 
   if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
   {

@@ -44,6 +44,7 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
     int size;
 
     unsigned short port = 0;
+    int portRangeCheck = 0;
 
     int protocolType;
     Protocol *received_Protocol = NULL;
@@ -65,14 +66,14 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
         printf("Invalid Port!\n");
         exit(EXIT_FAILURE);
     }
-    port = atoi(argv[2]);
-    if (port < 1024 || port > 65535)
+    portRangeCheck = atoi(argv[2]);
+    if ((portRangeCheck < 1024) || (portRangeCheck > 65535))
     {
         printf("Invalid Port Range!\n");
         exit(EXIT_FAILURE);
     }
-    cout << port << endl;
-
+    
+    port = atoi(argv[2]);
     //Create Socket
     struct sockaddr_in address, cliaddress;
     server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
