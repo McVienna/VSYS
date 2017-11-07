@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <sstream>
 #include <ctime>
 #include <fstream>
@@ -32,8 +33,10 @@ filehandler::filehandler(std::string m_path){
 
 }
 
-void filehandler::handle_message(Send_prot * &insta_message)
+bool filehandler::handle_message(Send_prot * &insta_message)
 {
+    std::string receiver_path;
+    std::string sender_path;
     std::string user_path;
     std::string time;
     std::stringstream _cast;
@@ -44,13 +47,13 @@ void filehandler::handle_message(Send_prot * &insta_message)
 
     time = _cast.str();
 
-    user_path = this->path + "/" + insta_message->return_sender();
+    receiver_path = this->path + "/" + insta_message->return_receiver();
 
-    std::string msg_name = user_path + "/" + time + ".txt";
+    std::string msg_name = receiver_path + "/" + time + ".txt";
 
     if(!(fs::is_directory(user_path)))
     {
-        fs::create_directories(user_path);
+        fs::create_directories(receiver_path);
 
         std::ofstream message_file (msg_name);
 
@@ -62,9 +65,11 @@ void filehandler::handle_message(Send_prot * &insta_message)
 
         message_file << "#" << insta_message->return_message() << "#"  << '\n';
 
+        return true;
+
 
     }
-    else
+    else if(fs::is_directory(user_path))
     {
         std::ofstream message_file (msg_name);
 
@@ -75,6 +80,12 @@ void filehandler::handle_message(Send_prot * &insta_message)
         message_file << "#" << insta_message->return_subject() << "#"  << '\n';
 
         message_file << "#" << insta_message->return_message() << "#"  << '\n';
+
+        return true;
+    }
+    else
+    {
+        return false;
     }
 
 
@@ -90,10 +101,34 @@ std::string filehandler::return_path()
     return this->path;
 }
 
-void filehandler::write_data_to_file(std::ofstream msg_file, Send_prot * rec_msg)
+
+///FUNCTION REMOVES A MESSAGE WITH GIVEN INPUT BY A USER
+
+int filehandler::delete_message(Delete_prot* &delete_this)
 {
-    msg_file << rec_msg->return_sender();
-    msg_file.close();
+    std::string delete_path = this->path + "/" + delete_this->return_usr();
+    std::string to_delete = delete_path + "/" + delete_this->return_msg_nr() + ".txt";
+    char* _del = new char[to_delete.size() + 1];
+    std::copy(to_delete.begin(), to_delete.end(), _del);
+
+    _del[to_delete.size()] = '\0';
+
+    if(!(fs::is_directory(delete_path)))
+    {
+        std::cout << "An Error occured: seems like this directory doesnt exist!" << std::endl;
+        return -1;
+    }
+    else
+    {
+        remove(_del);
+        std::cout << "Message deleted successfully" << std::endl;
+        return 1;
+    }
+
+
 }
+
+/*FUNCTIONS FOR LIST AND READ ARE OUTCUTTET*/
+/*MERGED IN THE MORNING CUZ DEAD*/
 
 
