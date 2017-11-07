@@ -383,6 +383,16 @@ void Read_prot::serialize(char* serialized_data) {
       */
   }
 
+    std::string Read_prot::return_message_nr()
+    {
+        return this->message_nr;
+    }
+
+    std::string Read_prot::return_username()
+    {
+        return this->username;
+    }
+
 /************************DELETE PROTOCOL************************/
 Delete_prot::Delete_prot(std::string ldapUsername) {
     std::string input;
@@ -560,3 +570,4 @@ std::string Delete_prot::return_usr()
   {
     return this->password;
   }
+

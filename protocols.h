@@ -97,6 +97,8 @@ class Read_prot : public Protocol {
 
     void serialize(char* serialized_data); //serializes all data into char Array.
     int get_buffersize(); //returns size needed for buffer to contain all data.
+    std::string return_username();
+    std::string return_message_nr();
 
   private:
     std::string username;

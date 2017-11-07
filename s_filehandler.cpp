@@ -57,13 +57,11 @@ bool filehandler::handle_message(Send_prot * &insta_message)
 
         std::ofstream message_file (msg_name);
 
-        message_file << "#" << insta_message->return_sender() << "#" << '\n';
+        message_file << insta_message->return_sender() << "#" << '\n';
 
-        message_file << "#" << insta_message->return_receiver() << "#"  << '\n';
+        message_file << insta_message->return_subject() << "#"  << '\n';
 
-        message_file << "#" << insta_message->return_subject() << "#"  << '\n';
-
-        message_file << "#" << insta_message->return_message() << "#"  << '\n';
+        message_file << insta_message->return_message() << "#"  << '\n';
 
         return true;
 
@@ -73,13 +71,11 @@ bool filehandler::handle_message(Send_prot * &insta_message)
     {
         std::ofstream message_file (msg_name);
 
-        message_file << "#" << insta_message->return_sender() << "#" << '\n';
+        message_file << insta_message->return_sender() << "#" << '\n';
 
-        message_file << "#" << insta_message->return_receiver() << "#"  << '\n';
+        message_file << insta_message->return_subject() << "#"  << '\n';
 
-        message_file << "#" << insta_message->return_subject() << "#"  << '\n';
-
-        message_file << "#" << insta_message->return_message() << "#"  << '\n';
+        message_file << insta_message->return_message() << "#"  << '\n';
 
         return true;
     }
@@ -130,7 +126,21 @@ int filehandler::delete_message(Delete_prot* &delete_this)
 
 std::string filehandler::read_msg(Read_prot* &to_read)
 {
-    
+    std::string path = this->path + "/" + to_read->return_username() + "/" + to_read->return_message_nr() + ".txt";
+    std::string msg;
+
+    std::ifstream input_file(path);
+
+    while(getline(input_file,msg,'#'))
+    {
+        std::cout << msg << std::endl;
+    }
+
+    input_file.close();
+
+    return msg;
+
+
 }
 
 

@@ -42,6 +42,7 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
     socklen_t addrlen;
 
     int size;
+    std::string _read;
 
     unsigned short port = 0;
     int portRangeCheck = 0;
@@ -189,8 +190,13 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
                     case 2: //READ
                     {
                         Read_prot *read_msg = static_cast<Read_prot *>(received_Protocol);
-                        
-                        strcpy(buffer, "My READ answere");
+
+                        /*KIND OF STRANGE BEHAVIOUR OCCURED HERE*/
+
+                        _read = general_filehandler->read_msg(read_msg);
+
+                        std::cout << _read << std::endl;
+
                         break;
                     }
 
