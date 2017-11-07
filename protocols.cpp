@@ -390,10 +390,7 @@ Delete_prot::Delete_prot() {
     {
         isNumber = true;
         cout << "Message Number: ";
-        cin  >> input;
-    
-        cin.clear();
-        cin.ignore();
+        getline(std::cin, input);
 
         for (auto i = input.begin(); i != input.end(); i++)
         {
@@ -428,6 +425,8 @@ Delete_prot::Delete_prot(char* received_data) {
     
     stringSize = deserialize_string(received_data, arrayPos, this->username, USERNAME_SIZE);
     this->username.resize(stringSize);
+
+    arrayPos += USERNAME_SIZE;
 
     stringSize = deserialize_string(received_data, arrayPos, this->message_nr, message_nrSize);   
     this->message_nr.resize(stringSize);
@@ -468,6 +467,16 @@ void Delete_prot::serialize(char* serialized_data) {
       test = ntohs(test);
       */
   }
+
+std::string Delete_prot::return_msg_nr()
+{
+    return this->message_nr;
+}
+
+std::string Delete_prot::return_usr()
+{
+    return this->username;
+}
 
   /************************LOGIN PROTOCOL************************/
   Login_prot::Login_prot()

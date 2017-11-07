@@ -144,26 +144,64 @@ int main(int argc, char **argv) {
                 {
                     case 0: //SEND
                     {
-                        Send_prot *send_prot = static_cast<Send_prot *>(received_Protocol);
-                        general_filehandler->handle_message(send_prot);
-                        delete send_prot;
+                        bool succ = false;
 
-                        break;
+
+                        Send_prot *send_prot = static_cast<Send_prot *>(received_Protocol);
+
+                        succ = general_filehandler->handle_message(send_prot);
+
+                        if(succ == true)
+                        {
+                            strcpy(buffer, "OK");
+                            delete send_prot;
+                            break;
+                        }
+                        else
+                        {
+                            strcpy(buffer, "ERR");
+                            delete send_prot;
+                            break;
+                        }
+
+
+
                     }
 
                     case 1: //LIST
-                    {    
+                    {
+                        strcpy(buffer, "MyList answere!");
+
                         break;
                     }
 
                     case 2: //READ
                     {
+                        strcpy(buffer, "MyList answere!");
                         break;
                     }
 
                     case 3: //DEL
                     {
+                        int check = 0;
+
+                        Delete_prot *delete_msg = static_cast<Delete_prot *>(received_Protocol);
+
+                        check = general_filehandler->delete_message(delete_msg);
+
+                        if(check == -1)
+                        {
+                            strcpy(buffer, "ERR");
+                            break;
+                        }
+                        else
+                        {
+                            strcpy(buffer, "OK");
+                            break;
+                        }
+
                         break;
+
                     }   
                     case 4: //LOGIN
                     {

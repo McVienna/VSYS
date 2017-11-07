@@ -11,12 +11,16 @@ private:
 
 public:
     filehandler(std::string);
-    void handle_message(Send_prot*&);
+
+    bool handle_message(Send_prot*&);
+    int delete_message(Delete_prot*&);
+
     ~filehandler();
     std::string return_path();
-
-    void write_data_to_file(std::ofstream, Send_prot *);
 };
 
 
 #endif /* S_FILEHANDLER.H*/
+
+/*FUNCTIONS FOR LIST AND READ ARE OUTCUTTET*/
+/*MERGED IN THE MORNING CUZ DEAD*/
