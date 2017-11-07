@@ -128,7 +128,9 @@ int filehandler::delete_message(Delete_prot* &delete_this)
 
 }
 
-/*FUNCTIONS FOR LIST AND READ ARE OUTCUTTET*/
-/*MERGED IN THE MORNING CUZ DEAD*/
+std::string filehandler::read_msg(Read_prot* &to_read)
+{
+    
+}
 
 

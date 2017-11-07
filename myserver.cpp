@@ -188,6 +188,8 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
 
                     case 2: //READ
                     {
+                        Read_prot *read_msg = static_cast<Read_prot *>(received_Protocol);
+                        
                         strcpy(buffer, "My READ answere");
                         break;
                     }
