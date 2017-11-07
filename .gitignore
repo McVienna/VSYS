@@ -8,7 +8,5 @@ cmake-build-debug/
 blab/
 startClient
 startServer
-Makefile
-Protokollbeschreibung
 VSYS.tar.gz
 TEST_IN
