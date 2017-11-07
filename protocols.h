@@ -143,5 +143,4 @@ private:
   const int USERNAME_SIZE = 8;
   const int PASSWORD_SIZE = 64;
 };
-
 #endif /* PROTOCOLS_H*/

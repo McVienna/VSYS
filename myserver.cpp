@@ -22,18 +22,22 @@
 #include "ldaphandler.h"
 
 
-#define BUF 1024
+#define BUF 2048
 
 namespace fs = std::experimental::filesystem::v1;
 
 using namespace std;
 
-void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data);
+void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data); //set correct protocoll type
+void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_length); //parse message into intoBuffer, ready for sendall. NOTE: Transmission_length = strlen(buffer) + 2
 
-int main(int argc, char **argv) {
+    int main(int argc, char **argv)
+{
 
-    std::vector<char> m_buffer;
+    std::vector<char> vec_receive_buffer;
     char* buffer = new char[BUF];
+    unsigned int transmission_length =0;
+
     int server_socket_fd, client_socket_fd;
     socklen_t addrlen;
 
@@ -103,12 +107,15 @@ int main(int argc, char **argv) {
             send(client_socket_fd, buffer, strlen(buffer), 0);
             memset(buffer, 0, BUF-1);
         }
+
+
         //Set up Ldap 
         LDAP *myldap;
         unsigned long clientAddress = cliaddress.sin_addr.s_addr;
+        int locktime;
 
-            //setup LDAP connection
-            if (!ldaphandler.init(myldap))
+        //setup LDAP connection
+        if (!ldaphandler.init(myldap))
         {
             perror("ERR: ldap_init failed! ldap Server not reachable\n");
             return EXIT_FAILURE;
@@ -118,17 +125,17 @@ int main(int argc, char **argv) {
         //Communication with Client
         do {
             //Recieve message
-            m_buffer.clear();
-            size = recvall(client_socket_fd, m_buffer);
+            vec_receive_buffer.clear();
+            size = recvall(client_socket_fd, vec_receive_buffer);
             if (size > 0)
             {
                 //in case of send_prot a dynamically sized Buffer is allocated
                 char* receiveBuffer = new char[1];
                 char* temp = receiveBuffer;
 
-                receiveBuffer  = new char[m_buffer.size()];
+                receiveBuffer  = new char[vec_receive_buffer.size()];
                 delete temp;
-                vec_to_buf(m_buffer, receiveBuffer);
+                vec_to_buf(vec_receive_buffer, receiveBuffer);
 
                 //get protocol type. Check for error (-1)
                 protocolType = get_protocol(receiveBuffer);
@@ -148,38 +155,47 @@ int main(int argc, char **argv) {
                         general_filehandler->handle_message(send_prot);
                         delete send_prot;
 
+                        //send answere to client
+                        strcpy (buffer, "My SEND answere");
                         break;
                     }
 
                     case 1: //LIST
-                    {    
+                    {
+                        strcpy(buffer, "My LIST answere");
                         break;
                     }
 
                     case 2: //READ
                     {
+                        strcpy(buffer, "My READ answere");
                         break;
                     }
 
                     case 3: //DEL
                     {
+                        strcpy(buffer, "My DEL answere");
                         break;
                     }   
                     case 4: //LOGIN
                     {
                         Login_prot* login_prot = static_cast<Login_prot* >(received_Protocol);
-                        int rc = ldaphandler.login(myldap, login_prot, clientAddress);
+                        int rc = ldaphandler.login(myldap, login_prot, clientAddress, locktime);
                         delete login_prot;
-                        if(rc == -1)
+
+                        if (rc == LDAP_SUCCESS)
                         {
-                            strcpy(buffer, "Too many attempts...pls wait another");
-                            printf("%s\n", buffer);
+                            sprintf(buffer, "OK\n");
+                        }
+                        else if (rc == -1)
+                        {
+                            sprintf(buffer, "Too many attempts...pls wait another %d Minutes", (locktime / 60));
                         }
                         else if (rc != LDAP_SUCCESS)
                         {
-                            sprintf(buffer, "LDAP error: %s\n", ldap_err2string(rc));
-                            printf("%s\n", buffer);
+                            sprintf(buffer, "ERR: %s\n", ldap_err2string(rc));
                         }
+
                         //TODO: SEND MESSAGE TO CLIENT
                         break;
                     }
@@ -195,6 +211,20 @@ int main(int argc, char **argv) {
                 perror("recv error");
                 return EXIT_FAILURE;
             }
+
+            //Server Answere to client
+            transmission_length = (strlen(buffer) + 2);
+
+            char* sendBuffer = new char[transmission_length];
+            memset(sendBuffer, 0, transmission_length);
+
+            prepareBuffer(sendBuffer, buffer, transmission_length); //prepare for sendall
+            if (sendall(client_socket_fd, sendBuffer, transmission_length))
+            {
+                perror("ERR: SENDALL");
+                printf("We only sent %d bytes because of the error!\n", transmission_length);
+            }
+            memset(buffer, 0, BUF-1);
 
         } while (1);//WHILE BEDINGUNG ANPASSEN AN EINGABE #later #überhaupt notwendig?
         close(client_socket_fd);
@@ -238,4 +268,16 @@ void buildProtocol(Protocol* &emptyProtocol, int protocolType, char* data) {
             emptyProtocol = new Login_prot(data);
             break;
       }
+}
+
+//sets tranmission length into buffer 
+void prepareBuffer(char* &intoBuffer, char* &message, unsigned int transmission_length) {
+
+    intoBuffer[0] = transmission_length & 0xFF;
+    intoBuffer[1] = (transmission_length >> 8) & 0xFF;
+
+    for(unsigned int i = 2; i < transmission_length; i++)
+    {
+        intoBuffer[i] = message[i-2];
+    }
 }

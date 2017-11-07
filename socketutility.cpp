@@ -24,6 +24,20 @@ void vec_to_buf(std::vector<char> &m_buffer, char * temp_buffer)
     }
 }
 
+//start copy from vector at index: startIndex
+void vec_to_bufNum(std::vector<char> &m_buffer, char *temp_buffer, int startIndex)
+{
+    
+    //needs to be here, m_buffer.size() parses too much from data-garbage;
+    short length = m_buffer[0] << 8 | m_buffer[1];
+    length = ntohs(length);
+
+    for (unsigned short i = 0; i < length-2; i++)
+    {
+        temp_buffer[i] = m_buffer[startIndex+i];
+    }
+}
+
 int sendall(int socketfd, char* buffer, unsigned int &len)
 {
   unsigned int total = 0;

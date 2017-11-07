@@ -19,8 +19,8 @@ class Ldap {
   public:
     Ldap();
     ~Ldap();
-    int login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress); //checks, if User is in Database;
-    int init(LDAP* &myldap); //returns > 0 on success, otherwise return -1;
+    int login(LDAP* &myldap, Login_prot* &login_protocol, unsigned long clientAddress, int &locktime); //checks, if User is in Database
+    int init(LDAP* &myldap); //returns > 0 on success, otherwise return -1
 
     std::map<unsigned long, time_t> lockedClients;
 

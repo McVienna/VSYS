@@ -28,6 +28,8 @@ int main (int argc, char **argv) {
   struct sockaddr_in address;
   int size;
 
+  std::vector<char> vec_receive_buffer;
+
   unsigned short port = 0;
 
   unsigned int transmission_length;
@@ -140,7 +142,7 @@ int main (int argc, char **argv) {
           break;
       }
 
-      //Check Buffer size, realloc, if neccassary.
+      //Create new buffer with correct size
       transmission_length = protocol->get_buffersize();
       char* buffer = new char[transmission_length]();
       
@@ -151,9 +153,35 @@ int main (int argc, char **argv) {
           printf("We only sent %d bytes because of the error!\n", transmission_length);
         }
 
+      //Receive Server answere
+      size = recvall(socket_fd, vec_receive_buffer);
+      if (size > 0)
+      {
+        char *receiveBuffer = new char[vec_receive_buffer.size()];
+        memset(receiveBuffer, 0, vec_receive_buffer.size());
+        
+        vec_to_bufNum(vec_receive_buffer, receiveBuffer, 2);
+        vec_receive_buffer.clear();
+
+        printf("%s\n", receiveBuffer);
+      }
+      else if (size == 0)
+      {
+        printf("Server closed remote socket\n");
+        break;
+      }
+      else
+      {
+        perror("recv error");
+        return EXIT_FAILURE;
+      }
+
       delete buffer;
       delete protocol;
+
+      usleep(2000000);//wait 2 seconds
       
+
     } 
   while (shallContinue == true);
 
