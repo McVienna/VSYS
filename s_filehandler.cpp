@@ -130,6 +130,7 @@ int filehandler::delete_message(Delete_prot* &delete_this)
 std::string filehandler::read_msg(Read_prot* &to_read)
 {
     std::string path = this->path + "/" + to_read->return_username() + "/" + to_read->return_message_nr() + ".txt";
+
     std::string msg;
     std::string _temp;
     std::string topic;
@@ -166,7 +167,7 @@ std::string filehandler::read_msg(Read_prot* &to_read)
                 }
             }
 
-            for(int i = 0; i < _temp.size(); i++)
+            for(unsigned int i = 0; i < _temp.size(); i++)
             {
 
                     msg.push_back(_temp[i]);
@@ -203,7 +204,6 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
     fs::path Path(directory);
 
-    int Nb_ext = 0;
     fs::directory_iterator end_iter; // Default constructor for an iterator is the end iterator
 
     for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
@@ -223,7 +223,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
                     my_list.push_back('-');
 
-                    for(int i = 0; i < _file.size(); i++)
+                    for(unsigned int i = 0; i < _file.size(); i++)
                     {
                         my_list.push_back(_file[i]);
                     }
@@ -249,7 +249,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
                             }
                         }
 
-                        for(int i = 0; i < _temp.size(); i++)
+                        for(unsigned int i = 0; i < _temp.size(); i++)
                         {
 
                             if(_temp[i] != '\n')
