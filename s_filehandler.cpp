@@ -167,7 +167,7 @@ std::string filehandler::read_msg(Read_prot* &to_read)
                 }
             }
 
-            for(unsigned int i = 0; i < _temp.size(); i++)
+            for(int i = 0; i < (signed)_temp.size(); i++)
             {
 
                     msg.push_back(_temp[i]);
@@ -206,66 +206,65 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
     fs::directory_iterator end_iter; // Default constructor for an iterator is the end iterator
 
-    for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
+    if(fs::is_directory(directory)) {
 
-        if (iter->path().extension() == ext)
-        {
-            actual_file = iter->path().filename();
+        for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
 
-            std::string _file = this->path + "/" + to_list->return_usr() + "/" + actual_file;
+            if (iter->path().extension() == ext) {
+                actual_file = iter->path().filename();
 
-            std::ifstream in_file(_file);
+                std::string _file = this->path + "/" + to_list->return_usr() + "/" + actual_file;
 
-            if(in_file.is_open())
-            {
-                if(in_file.is_open())
-                {
+                std::ifstream in_file(_file);
 
-                    my_list.push_back('-');
+                if (in_file.is_open()) {
+                    if (in_file.is_open()) {
 
-                    for(unsigned int i = 0; i < _file.size(); i++)
-                    {
-                        my_list.push_back(_file[i]);
-                    }
+                        my_list.push_back('-');
 
-                    my_list.push_back('\n');
-
-                    for(int i = 0; i < 2; i++)
-                    {
-
-
-                        switch(i) {
-                            case 0: {
-                                getline(in_file, _temp, '#');
-                                _temp = _temp + " -->";
-
-                                std::cout << _temp << std::endl;
-                                break;
-                            }
-                            case 1: {
-                                getline(in_file, _temp, '#');
-                                std::cout << _temp << std::endl;
-                                break;
-                            }
-                        }
-
-                        for(unsigned int i = 0; i < _temp.size(); i++)
-                        {
-
-                            if(_temp[i] != '\n')
-                            {
-                                my_list.push_back(_temp[i]);
-                            }
-
+                        for (int i = 0; i < (signed) _file.size(); i++) {
+                            my_list.push_back(_file[i]);
                         }
 
                         my_list.push_back('\n');
+
+                        for (int i = 0; i < 2; i++) {
+
+
+                            switch (i) {
+                                case 0: {
+                                    getline(in_file, _temp, '#');
+                                    _temp = _temp + " -->";
+
+                                    std::cout << _temp << std::endl;
+                                    break;
+                                }
+                                case 1: {
+                                    getline(in_file, _temp, '#');
+                                    std::cout << _temp << std::endl;
+                                    break;
+                                }
+                            }
+
+                            for (unsigned int i = 0; i < _temp.size(); i++) {
+
+                                if (_temp[i] != '\n') {
+                                    my_list.push_back(_temp[i]);
+                                }
+
+                            }
+
+                            my_list.push_back('\n');
+                        }
                     }
+
                 }
-
             }
-        }
 
+        }
+    } else
+    {
+        my_list  = "ERR";
     }
 
     std::cout << my_list;

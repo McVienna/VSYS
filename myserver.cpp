@@ -203,9 +203,13 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
 
                         _read = general_filehandler->read_msg(read_msg);
 
-                        const char * send_read = _read.c_str();
+                        if(!(_read.empty()))
+                        {
 
-                        strcpy(buffer, send_read);
+                            const char * send_read = _read.c_str();
+
+                            strcpy(buffer, send_read);
+                        }
 
                         break;
                     }
