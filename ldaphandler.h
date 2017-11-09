@@ -7,7 +7,7 @@
 #define LDAP_USERPAD_R ",ou=People,dc=technikum-wien,dc=at"
 
 //login lock in seconds. Default: 30mins
-#define LOGLOCK_TIME 10
+#define LOGLOCK_TIME 1800
 
 #include <map>
 #include <ctime>

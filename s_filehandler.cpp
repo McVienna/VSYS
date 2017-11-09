@@ -220,7 +220,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
                 if (in_file.is_open()) {
                     if (in_file.is_open()) {
 
-
+                        my_list.push_back('\n');
                         my_list.push_back('-');
 
                         for (int i = 0; i < (signed) _file.size(); i++) {
@@ -249,10 +249,10 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
 
                             for (int i = 0; i < (signed)_temp.size(); i++) 
-				{
+				            {
 
                                 if (_temp[i] != '\n') 
-				{
+                                {
                                     my_list.push_back(_temp[i]);
                                 }
 
