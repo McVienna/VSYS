@@ -184,6 +184,8 @@ void prepareBuffer(char *&intoBuffer, char *&message, unsigned int transmission_
                     case 1: //LIST
                     {
 
+                        /*SERVER DIES WHEN READYINIG EMPTY*/
+                        
                         List_prot * to_list = static_cast<List_prot *>(received_Protocol);
 
                         std::string _list = general_filehandler->list_mails(to_list);

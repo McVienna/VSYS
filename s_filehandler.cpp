@@ -204,6 +204,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
     fs::path Path(directory);
 
     int Nb_ext = 0;
+    
     fs::directory_iterator end_iter; // Default constructor for an iterator is the end iterator
 
     for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
@@ -223,7 +224,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
                     my_list.push_back('-');
 
-                    for(int i = 0; i < _file.size(); i++)
+                    for(int i = 0; i < (unsigned)_file.size(); i++)
                     {
                         my_list.push_back(_file[i]);
                     }
@@ -249,7 +250,7 @@ std::string filehandler::list_mails(List_prot *&to_list) {
                             }
                         }
 
-                        for(int i = 0; i < _temp.size(); i++)
+                        for(int i = 0; i < ((signed)_temp.size(); i++)
                         {
 
                             if(_temp[i] != '\n')
