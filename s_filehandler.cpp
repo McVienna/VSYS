@@ -130,6 +130,7 @@ int filehandler::delete_message(Delete_prot* &delete_this)
 std::string filehandler::read_msg(Read_prot* &to_read)
 {
     std::string path = this->path + "/" + to_read->return_username() + "/" + to_read->return_message_nr() + ".txt";
+
     std::string msg;
     std::string _temp;
     std::string topic;
@@ -166,7 +167,7 @@ std::string filehandler::read_msg(Read_prot* &to_read)
                 }
             }
 
-            for(int i = 0; i < _temp.size(); i++)
+            for(int i = 0; i < (signed)_temp.size(); i++)
             {
 
                     msg.push_back(_temp[i]);
@@ -203,70 +204,73 @@ std::string filehandler::list_mails(List_prot *&to_list) {
 
     fs::path Path(directory);
 
-    int Nb_ext = 0;
-    
     fs::directory_iterator end_iter; // Default constructor for an iterator is the end iterator
 
-    for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
+    if(fs::is_directory(directory)) {
 
-        if (iter->path().extension() == ext)
-        {
-            actual_file = iter->path().filename();
+        for (fs::directory_iterator iter(Path); iter != end_iter; ++iter) {
 
-            std::string _file = this->path + "/" + to_list->return_usr() + "/" + actual_file;
+            if (iter->path().extension() == ext) {
+                actual_file = iter->path().filename();
 
-            std::ifstream in_file(_file);
+                std::string _file = this->path + "/" + to_list->return_usr() + "/" + actual_file;
 
-            if(in_file.is_open())
-            {
-                if(in_file.is_open())
-                {
+                std::ifstream in_file(_file);
 
-                    my_list.push_back('-');
-
-                    for(int i = 0; i < (unsigned)_file.size(); i++)
-                    {
-                        my_list.push_back(_file[i]);
-                    }
-
-                    my_list.push_back('\n');
-
-                    for(int i = 0; i < 2; i++)
-                    {
+                if (in_file.is_open()) {
+                    if (in_file.is_open()) {
 
 
-                        switch(i) {
-                            case 0: {
-                                getline(in_file, _temp, '#');
-                                _temp = _temp + " -->";
+                        my_list.push_back('-');
 
-                                std::cout << _temp << std::endl;
-                                break;
-                            }
-                            case 1: {
-                                getline(in_file, _temp, '#');
-                                std::cout << _temp << std::endl;
-                                break;
-                            }
-                        }
-
-                        for(int i = 0; i < ((signed)_temp.size(); i++)
-                        {
-
-                            if(_temp[i] != '\n')
-                            {
-                                my_list.push_back(_temp[i]);
-                            }
-
+                        for (int i = 0; i < (signed) _file.size(); i++) {
+                            my_list.push_back(_file[i]);
                         }
 
                         my_list.push_back('\n');
+
+                        for (int i = 0; i < 2; i++) {
+
+
+                            switch (i) {
+                                case 0: {
+                                    getline(in_file, _temp, '#');
+                                    _temp = _temp + " -->";
+
+                                    std::cout << _temp << std::endl;
+                                    break;
+                                }
+                                case 1: {
+                                    getline(in_file, _temp, '#');
+                                    std::cout << _temp << std::endl;
+                                    break;
+                                }
+                            }
+
+<<<<<<< HEAD
+                        for(int i = 0; i < ((signed)_temp.size(); i++)
+                        {
+=======
+                            for (unsigned int i = 0; i < _temp.size(); i++) {
+
+                                if (_temp[i] != '\n') {
+                                    my_list.push_back(_temp[i]);
+                                }
+>>>>>>> 48fb711dbcedf159baaf8ec46a925bab5bef2739
+
+                            }
+
+                            my_list.push_back('\n');
+                        }
                     }
+
                 }
-
             }
-        }
 
+        }
+    } else
+    {
+        my_list  = "ERR";
     }
 
     std::cout << my_list;
