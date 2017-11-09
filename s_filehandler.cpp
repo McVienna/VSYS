@@ -247,16 +247,14 @@ std::string filehandler::list_mails(List_prot *&to_list) {
                                 }
                             }
 
-<<<<<<< HEAD
-                        for(int i = 0; i < ((signed)_temp.size(); i++)
-                        {
-=======
-                            for (unsigned int i = 0; i < _temp.size(); i++) {
 
-                                if (_temp[i] != '\n') {
+                            for (int i = 0; i < (signed)_temp.size(); i++) 
+				{
+
+                                if (_temp[i] != '\n') 
+				{
                                     my_list.push_back(_temp[i]);
                                 }
->>>>>>> 48fb711dbcedf159baaf8ec46a925bab5bef2739
 
                             }
 
